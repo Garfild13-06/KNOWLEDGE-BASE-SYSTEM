@@ -4,11 +4,11 @@ import { ViewModule, ViewList } from '@mui/icons-material';
 import ToggleViewList from '../components/ToggleViewList';
 import { fetchArticles, createArticle } from '../services/articles';
 import { useNavigate } from 'react-router-dom';
-import { useViewType } from '../contexts/ViewTypeContext'; // Используем глобальный переключатель вида
+import { useViewType } from '../contexts/ViewTypeContext';
 
 const ArticlePage = () => {
     const [articles, setArticles] = useState([]);
-    const { viewType, setViewType } = useViewType(); // Используем глобальное состояние
+    const { viewType, setViewType } = useViewType();
     const [open, setOpen] = useState(false);
     const [newArticle, setNewArticle] = useState({ title: '', content: '' });
     const navigate = useNavigate();
@@ -40,7 +40,6 @@ const ArticlePage = () => {
 
     return (
         <div>
-            {/* Переключатель вида */}
             <ButtonGroup style={{ marginBottom: '20px' }}>
                 <Button
                     variant={viewType === 'grid' ? 'contained' : 'outlined'}
@@ -62,10 +61,8 @@ const ArticlePage = () => {
                 Книги
             </Typography>
 
-            {/* Список книг */}
             <ToggleViewList items={articles} viewType={viewType} onClick={handleNavigate} />
 
-            {/* Модальное окно для добавления книги */}
             <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
                 <DialogTitle>Добавить новую книгу</DialogTitle>
                 <DialogContent>

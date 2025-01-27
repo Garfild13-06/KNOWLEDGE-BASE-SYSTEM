@@ -11,6 +11,11 @@ import {
     CardContent,
     ButtonGroup,
     Box,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    TextField,
 } from '@mui/material';
 import { ViewModule, ViewList } from '@mui/icons-material';
 import ToggleViewList from '../components/ToggleViewList';
@@ -24,6 +29,10 @@ const SectionDetailsPage = () => {
     const [subsections, setSubsections] = useState([]); // Подразделы текущей полки
     const [articles, setArticles] = useState([]); // Книги текущей полки
     const [breadcrumbs, setBreadcrumbs] = useState([]); // Хлебные крошки
+    const [openNewBook, setOpenNewBook] = useState(false); // Модальное окно для добавления книги
+    const [openNewShelf, setOpenNewShelf] = useState(false); // Модальное окно для добавления полки
+    const [newBook, setNewBook] = useState({ title: '', content: '', section: id }); // Новая книга
+    const [newShelf, setNewShelf] = useState({ name: '', description: '', parent: id }); // Новая полка
 
     useEffect(() => {
         const fetchData = async () => {
@@ -64,6 +73,28 @@ const SectionDetailsPage = () => {
         return <Typography>Загрузка...</Typography>;
     }
 
+    // Создание новой книги
+    const handleCreateBook = async () => {
+        try {
+            const response = await api.post('/articles/', newBook);
+            setArticles((prev) => [...prev, response.data]); // Обновляем список книг
+            setOpenNewBook(false); // Закрываем модальное окно
+        } catch (error) {
+            console.error('Ошибка при добавлении книги:', error.response?.data || error.message);
+        }
+    };
+
+    // Создание новой полки
+    const handleCreateShelf = async () => {
+        try {
+            const response = await api.post('/sections/', newShelf);
+            setSubsections((prev) => [...prev, response.data]); // Обновляем список подразделов
+            setOpenNewShelf(false); // Закрываем модальное окно
+        } catch (error) {
+            console.error('Ошибка при добавлении полки:', error.response?.data || error.message);
+        }
+    };
+
     return (
         <div>
             {/* Хлебные крошки */}
@@ -92,9 +123,16 @@ const SectionDetailsPage = () => {
                 {section.description}
             </Typography>
 
-            {/* Переключатель вида */}
+            {/* Кнопки для добавления книг и подполок */}
             <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                {/* Переключатель представления */}
+                <Button variant="contained" color="primary" onClick={() => setOpenNewBook(true)}>
+                    Новая книга
+                </Button>
+                <Button variant="contained" color="secondary" onClick={() => setOpenNewShelf(true)}>
+                    Новая полка
+                </Button>
+
+                {/* Переключатель вида */}
                 <ButtonGroup>
                     <Button
                         variant={viewType === 'grid' ? 'contained' : 'outlined'}
@@ -117,25 +155,75 @@ const SectionDetailsPage = () => {
             <Typography variant="h5" gutterBottom>
                 Подполки
             </Typography>
-            {subsections.length > 0 ? (
-                <ToggleViewList items={subsections} viewType={viewType} onClick={(id) => navigate(`/sections/${id}`)} />
-            ) : (
-                <Typography variant="body2" color="text.secondary">
-                    Нет подразделов.
-                </Typography>
-            )}
+            <ToggleViewList items={subsections} viewType={viewType} onClick={(id) => navigate(`/sections/${id}`)} />
 
             {/* Книги */}
             <Typography variant="h5" gutterBottom style={{ marginTop: '20px' }}>
                 Книги
             </Typography>
-            {articles.length > 0 ? (
-                <ToggleViewList items={articles} viewType={viewType} onClick={(id) => navigate(`/articles/${id}`)} />
-            ) : (
-                <Typography variant="body2" color="text.secondary">
-                    Нет книг в этой полке.
-                </Typography>
-            )}
+            <ToggleViewList items={articles} viewType={viewType} onClick={(id) => navigate(`/articles/${id}`)} />
+
+            {/* Модальное окно для добавления книги */}
+            <Dialog open={openNewBook} onClose={() => setOpenNewBook(false)} maxWidth="sm" fullWidth>
+                <DialogTitle>Добавить новую книгу</DialogTitle>
+                <DialogContent>
+                    <TextField
+                        label="Название книги"
+                        value={newBook.title}
+                        onChange={(e) => setNewBook({ ...newBook, title: e.target.value })}
+                        fullWidth
+                        margin="normal"
+                    />
+                    <TextField
+                        label="Содержание книги"
+                        value={newBook.content}
+                        onChange={(e) => setNewBook({ ...newBook, content: e.target.value })}
+                        multiline
+                        rows={4}
+                        fullWidth
+                        margin="normal"
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setOpenNewBook(false)} color="secondary">
+                        Отмена
+                    </Button>
+                    <Button onClick={handleCreateBook} variant="contained" color="primary">
+                        Сохранить
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Модальное окно для добавления полки */}
+            <Dialog open={openNewShelf} onClose={() => setOpenNewShelf(false)} maxWidth="sm" fullWidth>
+                <DialogTitle>Добавить новую полку</DialogTitle>
+                <DialogContent>
+                    <TextField
+                        label="Название полки"
+                        value={newShelf.name}
+                        onChange={(e) => setNewShelf({ ...newShelf, name: e.target.value })}
+                        fullWidth
+                        margin="normal"
+                    />
+                    <TextField
+                        label="Описание"
+                        value={newShelf.description}
+                        onChange={(e) => setNewShelf({ ...newShelf, description: e.target.value })}
+                        multiline
+                        rows={4}
+                        fullWidth
+                        margin="normal"
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setOpenNewShelf(false)} color="secondary">
+                        Отмена
+                    </Button>
+                    <Button onClick={handleCreateShelf} variant="contained" color="primary">
+                        Сохранить
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </div>
     );
 };

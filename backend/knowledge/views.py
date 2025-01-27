@@ -1,25 +1,37 @@
-from rest_framework import generics
+from rest_framework.viewsets import ModelViewSet
 from .models import Section, Article
 from .serializers import SectionSerializer, ArticleSerializer
+import logging
 
-class SectionListCreateAPIView(generics.ListCreateAPIView):
+logger = logging.getLogger(__name__)
+class SectionViewSet(ModelViewSet):
+    """
+    ViewSet для управления разделами (полками).
+    """
     queryset = Section.objects.all()
     serializer_class = SectionSerializer
 
-class ArticleListCreateAPIView(generics.ListCreateAPIView):
+    def get_queryset(self):
+        parent_id = self.request.query_params.get('parent')
+        if parent_id:
+            return Section.objects.filter(parent_id=parent_id)
+        return super().get_queryset()
+    
+    def list(self, request, *args, **kwargs):
+        logger.info(f"Запрос от: {request.META.get('REMOTE_ADDR')}")
+        return super().list(request, *args, **kwargs)
+
+
+
+class ArticleViewSet(ModelViewSet):
+    """
+    ViewSet для управления статьями (книгами).
+    """
+    queryset = Article.objects.all()
     serializer_class = ArticleSerializer
 
     def get_queryset(self):
-        queryset = Article.objects.all()
-        section_id = self.request.query_params.get('section')  # Получаем параметр section из запроса
+        section_id = self.request.query_params.get('section')
         if section_id:
-            queryset = queryset.filter(section_id=section_id)  # Фильтруем статьи по разделу
-        return queryset
-
-class SectionDetailAPIView(generics.RetrieveAPIView):
-    queryset = Section.objects.all()
-    serializer_class = SectionSerializer
-
-class ArticleDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Article.objects.all()
-    serializer_class = ArticleSerializer
+            return Article.objects.filter(section_id=section_id)
+        return super().get_queryset()
