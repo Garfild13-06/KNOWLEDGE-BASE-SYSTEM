@@ -19,3 +19,7 @@ class ArticleListCreateAPIView(generics.ListCreateAPIView):
 class SectionDetailAPIView(generics.RetrieveAPIView):
     queryset = Section.objects.all()
     serializer_class = SectionSerializer
+
+class ArticleDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Article.objects.all()
+    serializer_class = ArticleSerializer

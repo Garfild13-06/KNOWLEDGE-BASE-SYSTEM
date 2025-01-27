@@ -5,6 +5,9 @@ class SectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Section
         fields = '__all__'
+        extra_kwargs = {
+            'parent': {'required': False, 'allow_null': True}
+        }
 
 class ArticleSerializer(serializers.ModelSerializer):
     class Meta:

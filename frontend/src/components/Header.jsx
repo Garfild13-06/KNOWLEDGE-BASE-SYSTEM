@@ -1,17 +1,18 @@
 import React from 'react';
+import { AppBar, Toolbar, Typography, Button } from '@mui/material';
 import { Link } from 'react-router-dom';
 
 const Header = () => {
     return (
-        <nav className="navbar navbar-expand-lg navbar-light bg-light">
-            <div className="container-fluid">
-                <Link className="navbar-brand" to="/">Knowledge Base</Link>
-                <div>
-                    <Link className="nav-link" to="/articles">Статьи</Link>
-                    <Link className="nav-link" to="/">Разделы</Link>
-                </div>
-            </div>
-        </nav>
+        <AppBar position="sticky">
+            <Toolbar>
+                <Typography variant="h6" component={Link} to="/" style={{ flexGrow: 1, textDecoration: 'none', color: 'inherit' }}>
+                    Knowledge Base
+                </Typography>
+                <Button color="inherit" component={Link} to="/articles">Книги</Button>
+                <Button color="inherit" component={Link} to="/">Полки</Button>
+            </Toolbar>
+        </AppBar>
     );
 };
 
