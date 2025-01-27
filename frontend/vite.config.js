@@ -4,13 +4,13 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
     plugins: [react()],
     server: {
-        host: true, // Открываем доступ извне
-        port: 3000, // Порт для фронтенда
+        host: true, // Разрешает доступ извне
+        port: 3000, // Порт для запуска фронтенда
         proxy: {
             '/api': {
-                target: 'http://localhost:8000', // Бэкенд
-                changeOrigin: true, // Меняем origin запроса на адрес бэкенда
-                rewrite: (path) => path.replace(/^\/api/, ''), // Убираем префикс /api
+                target: 'http://127.0.0.1:8000', // Адрес бэкенда
+                changeOrigin: true, // Меняет Origin для запросов
+                rewrite: (path) => path.replace(/^\/api/, ''), // Убираем "/api" из пути
             },
         },
     },
