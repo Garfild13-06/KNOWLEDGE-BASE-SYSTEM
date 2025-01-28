@@ -11,7 +11,7 @@ const BookCard = ({ title, description, onClick }) => {
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                backgroundColor: '#fff8dc', // Цвет книги
+                backgroundColor: '#fff8dc', // Цвет файла
                 borderRadius: 2,
                 boxShadow: 3,
                 '&:hover': { boxShadow: 6, transform: 'scale(1.02)' },
@@ -36,9 +36,9 @@ const BookCard = ({ title, description, onClick }) => {
                 <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
                     {title}
                 </Typography>
-                <Typography variant="body2" color="text.secondary">
+                {/* <Typography variant="body2" color="text.secondary">
                     {description || 'Содержание отсутствует.'}
-                </Typography>
+                </Typography> */}
             </CardContent>
         </Card>
     );

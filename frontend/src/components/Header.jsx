@@ -9,8 +9,8 @@ const Header = () => {
                 <Typography variant="h6" component={Link} to="/" style={{ flexGrow: 1, textDecoration: 'none', color: 'inherit' }}>
                     Knowledge Base
                 </Typography>
-                <Button color="inherit" component={Link} to="/articles">Книги</Button>
-                <Button color="inherit" component={Link} to="/">Полки</Button>
+                <Button color="inherit" component={Link} to="/articles">Файлы</Button>
+                <Button color="inherit" component={Link} to="/">Папки</Button>
             </Toolbar>
         </AppBar>
     );

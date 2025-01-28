@@ -76,7 +76,7 @@ const SectionDetailsPage = () => {
             setArticles((prev) => [...prev, response.data]);
             setOpenNewBook(false);
         } catch (error) {
-            console.error('Ошибка при добавлении книги:', error.response?.data || error.message);
+            console.error('Ошибка при добавлении файла:', error.response?.data || error.message);
         }
     };
 
@@ -86,7 +86,7 @@ const SectionDetailsPage = () => {
             setSubsections((prev) => [...prev, response.data]);
             setOpenNewShelf(false);
         } catch (error) {
-            console.error('Ошибка при добавлении полки:', error.response?.data || error.message);
+            console.error('Ошибка при добавлении папки:', error.response?.data || error.message);
         }
     };
 
@@ -121,10 +121,10 @@ const SectionDetailsPage = () => {
             {/* Кнопки добавления */}
             <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
                 <Button variant="contained" color="primary" onClick={() => setOpenNewBook(true)}>
-                    Новая книга
+                    Новый файл
                 </Button>
                 <Button variant="contained" color="secondary" onClick={() => setOpenNewShelf(true)}>
-                    Новая полка
+                    Новая подпапка
                 </Button>
 
                 {/* Переключатель вида */}
@@ -146,9 +146,9 @@ const SectionDetailsPage = () => {
                 </ButtonGroup>
             </Box>
 
-            {/* Подразделы */}
+            {/* Подпапки */}
             <Typography variant="h5" gutterBottom>
-                Подполки
+                Подпапки
             </Typography>
             {viewType === 'grid' ? (
                 <Grid container spacing={2}>
@@ -172,9 +172,9 @@ const SectionDetailsPage = () => {
                 />
             )}
 
-            {/* Книги */}
+            {/* Файлы */}
             <Typography variant="h5" gutterBottom style={{ marginTop: '20px' }}>
-                Книги
+                Файлы
             </Typography>
             {viewType === 'grid' ? (
                 <Grid container spacing={2}>
@@ -198,19 +198,19 @@ const SectionDetailsPage = () => {
                 />
             )}
 
-            {/* Модальное окно для добавления книги */}
+            {/* Модальное окно для добавления файла */}
             <Dialog open={openNewBook} onClose={() => setOpenNewBook(false)} maxWidth="sm" fullWidth>
-                <DialogTitle>Добавить новую книгу</DialogTitle>
+                <DialogTitle>Добавить новый файл</DialogTitle>
                 <DialogContent>
                     <TextField
-                        label="Название книги"
+                        label="Название файла"
                         value={newBook.title}
                         onChange={(e) => setNewBook({ ...newBook, title: e.target.value })}
                         fullWidth
                         margin="normal"
                     />
                     <TextField
-                        label="Содержание книги"
+                        label="Содержание файла"
                         value={newBook.content}
                         onChange={(e) => setNewBook({ ...newBook, content: e.target.value })}
                         multiline
@@ -229,12 +229,12 @@ const SectionDetailsPage = () => {
                 </DialogActions>
             </Dialog>
 
-            {/* Модальное окно для добавления полки */}
+            {/* Модальное окно для добавления подпапки */}
             <Dialog open={openNewShelf} onClose={() => setOpenNewShelf(false)} maxWidth="sm" fullWidth>
-                <DialogTitle>Добавить новую полку</DialogTitle>
+                <DialogTitle>Добавить новую подпапку</DialogTitle>
                 <DialogContent>
                     <TextField
-                        label="Название полки"
+                        label="Название подпапки"
                         value={newShelf.name}
                         onChange={(e) => setNewShelf({ ...newShelf, name: e.target.value })}
                         fullWidth

@@ -7,12 +7,12 @@ import {
     Typography,
     Button,
     Box,
-    TextField,
     Dialog,
     DialogActions,
     DialogContent,
     DialogTitle,
 } from '@mui/material';
+import RichTextEditor from '../components/RichTextEditor'; // Подключаем компонент редактора
 
 const ArticleDetailsPage = () => {
     const { id } = useParams(); // ID книги из URL
@@ -26,7 +26,6 @@ const ArticleDetailsPage = () => {
     useEffect(() => {
         const fetchArticleData = async () => {
             try {
-                // Получаем данные о книге
                 const articleResponse = await api.get(`/articles/${id}/`);
                 const fetchedArticle = articleResponse.data;
                 setArticle(fetchedArticle);
@@ -53,19 +52,19 @@ const ArticleDetailsPage = () => {
     }, [id]);
 
     const handleEdit = () => {
-        setIsEditing(true); // Включаем режим редактирования
+        setIsEditing(true);
     };
 
     const handleCancelEdit = () => {
-        setIsEditing(false); // Выключаем режим редактирования
-        setEditedArticle(article); // Сбрасываем изменения
+        setIsEditing(false);
+        setEditedArticle(article);
     };
 
     const handleSave = async () => {
         try {
-            const response = await api.put(`/articles/${id}/`, editedArticle); // Сохраняем изменения
-            setArticle(response.data); // Обновляем данные книги
-            setIsEditing(false); // Выходим из режима редактирования
+            const response = await api.put(`/articles/${id}/`, editedArticle);
+            setArticle(response.data);
+            setIsEditing(false);
         } catch (error) {
             console.error('Ошибка при сохранении изменений:', error);
             alert('Не удалось сохранить изменения.');
@@ -74,8 +73,8 @@ const ArticleDetailsPage = () => {
 
     const handleDelete = async () => {
         try {
-            await api.delete(`/articles/${id}/`); // Удаляем книгу
-            navigate(`/sections/${article.section}`); // Возвращаемся в раздел
+            await api.delete(`/articles/${id}/`);
+            navigate(`/sections/${article.section}`);
         } catch (error) {
             console.error('Ошибка при удалении книги:', error);
             alert('Не удалось удалить книгу.');
@@ -110,21 +109,9 @@ const ArticleDetailsPage = () => {
             {isEditing ? (
                 <div>
                     {/* Режим редактирования */}
-                    <TextField
-                        label="Название книги"
-                        value={editedArticle.title}
-                        onChange={(e) => setEditedArticle({ ...editedArticle, title: e.target.value })}
-                        fullWidth
-                        margin="normal"
-                    />
-                    <TextField
-                        label="Содержание книги"
-                        value={editedArticle.content}
-                        onChange={(e) => setEditedArticle({ ...editedArticle, content: e.target.value })}
-                        fullWidth
-                        multiline
-                        rows={6}
-                        margin="normal"
+                    <RichTextEditor
+                        value={editedArticle.content} // Передаём текущий контент
+                        onChange={(data) => setEditedArticle({ ...editedArticle, content: data })} // Обновляем контент
                     />
                     <Box display="flex" justifyContent="space-between" mt={2}>
                         <Button variant="contained" color="primary" onClick={handleSave}>
@@ -141,9 +128,11 @@ const ArticleDetailsPage = () => {
                     <Typography variant="h4" gutterBottom>
                         {article.title}
                     </Typography>
-                    <Typography variant="body1" gutterBottom>
-                        {article.content}
-                    </Typography>
+                    <Typography
+                        variant="body1"
+                        gutterBottom
+                        dangerouslySetInnerHTML={{ __html: article.content }} // Отображаем контент с форматированием
+                    />
                     <Box display="flex" justifyContent="space-between" mt={2}>
                         <Button variant="contained" color="primary" onClick={handleEdit}>
                             Изменить

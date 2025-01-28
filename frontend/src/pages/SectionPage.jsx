@@ -50,7 +50,7 @@ const SectionPage = () => {
             setSections((prev) => [...prev, response.data]);
             handleClose();
         } catch (error) {
-            console.error('Ошибка при создании полки:', error.response?.data || error.message);
+            console.error('Ошибка при создании папки:', error.response?.data || error.message);
         }
     };
 
@@ -61,12 +61,12 @@ const SectionPage = () => {
     return (
         <div>
             <Typography variant="h4" gutterBottom>
-                Полки
+                Папки
             </Typography>
 
             <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
                 <Button variant="contained" color="primary" onClick={handleOpen}>
-                    Новая полка
+                    Новая папка
                 </Button>
 
                 <ButtonGroup>
@@ -110,10 +110,10 @@ const SectionPage = () => {
             )}
 
             <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-                <DialogTitle>Создать новую полку</DialogTitle>
+                <DialogTitle>Создать новую папку</DialogTitle>
                 <DialogContent>
                     <TextField
-                        label="Название полки"
+                        label="Название папки"
                         value={newSection.name}
                         onChange={(e) => setNewSection({ ...newSection, name: e.target.value })}
                         fullWidth

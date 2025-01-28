@@ -27,7 +27,7 @@ const BookSpineList = ({ books, onClick }) => {
                                 {book.title}
                             </Typography>
                         }
-                        secondary={book.description || 'Нет описания.'}
+                        // secondary={book.description || 'Нет описания.'}
                     />
                 </ListItem>
             ))}

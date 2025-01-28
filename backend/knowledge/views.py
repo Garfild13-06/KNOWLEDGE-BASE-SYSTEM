@@ -1,6 +1,16 @@
+from django.conf import settings  # Импортируем настройки проекта
 from rest_framework.viewsets import ModelViewSet
 from .models import Section, Article
 from .serializers import SectionSerializer, ArticleSerializer
+from rest_framework.views import APIView
+from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.response import Response
+from rest_framework import status
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
+from django.http import JsonResponse
+import os
+
 
 class SectionViewSet(ModelViewSet):
     """
@@ -29,3 +39,22 @@ class ArticleViewSet(ModelViewSet):
         if section_id:
             return Article.objects.filter(section_id=section_id)
         return super().get_queryset()
+
+class FileUploadView(APIView):
+    parser_classes = [MultiPartParser, FormParser]
+
+    def post(self, request, *args, **kwargs):
+        if 'upload' not in request.FILES:
+            return Response({'error': 'No file uploaded'}, status=400)
+
+        file_obj = request.FILES['upload']
+        file_name = file_obj.name
+        file_path = os.path.join(settings.MEDIA_ROOT, 'uploads', file_name)
+
+        # Сохраняем файл
+        saved_path = default_storage.save(file_path, file_obj)
+
+        # Создаём полный URL
+        file_url = request.build_absolute_uri(settings.MEDIA_URL + saved_path.replace(settings.MEDIA_ROOT, '').lstrip('/'))
+
+        return Response({"url": file_url}, status=201)

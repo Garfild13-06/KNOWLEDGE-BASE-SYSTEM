@@ -58,13 +58,13 @@ const ArticlePage = () => {
             </ButtonGroup>
 
             <Typography variant="h4" gutterBottom>
-                Книги
+                Файлы
             </Typography>
 
             <ToggleViewList items={articles} viewType={viewType} onClick={handleNavigate} />
 
             <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-                <DialogTitle>Добавить новую книгу</DialogTitle>
+                <DialogTitle>Добавить новый файл</DialogTitle>
                 <DialogContent>
                     <TextField
                         label="Заголовок"

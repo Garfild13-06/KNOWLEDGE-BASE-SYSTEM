@@ -1,3 +1,4 @@
+import os
 """
 Django settings for backend project.
 
@@ -57,9 +58,15 @@ MIDDLEWARE.insert(0, 'corsheaders.middleware.CorsMiddleware')
 CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3000",
     "http://localhost:3000",
+    "http://127.0.0.1:8000",  # URL фронтенда
+    "http://localhost:8000",  # Другой формат URL фронтенда
     "http://192.168.95.143:3000",  # Пример: IP машины с фронтендом
+    "http://192.168.95.143:8000",  # Пример: IP машины с фронтендом
 ]
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_ALL_ORIGINS = True  # Разрешаем все источники
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_METHODS = ["GET", "POST", "OPTIONS", "DELETE", "PUT"]
+CORS_ALLOW_HEADERS = ["*"]
 
 ROOT_URLCONF = 'backend.urls'
 
@@ -97,7 +104,7 @@ DATABASES = {
 }
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
 # Password validation

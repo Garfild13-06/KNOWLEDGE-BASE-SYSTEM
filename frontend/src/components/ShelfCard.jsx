@@ -36,9 +36,9 @@ const ShelfCard = ({ name, description, onClick }) => {
                 <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
                     {name}
                 </Typography>
-                <Typography variant="body2" color="text.secondary">
+                {/* <Typography variant="body2" color="text.secondary">
                     {description || 'Описание отсутствует.'}
-                </Typography>
+                </Typography> */}
             </CardContent>
         </Card>
     );

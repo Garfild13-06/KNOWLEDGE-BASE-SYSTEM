@@ -1,0 +1,3 @@
+backend/media/uploads/*
+backend/backend/__pycache__
+frontend/package-lock.json
