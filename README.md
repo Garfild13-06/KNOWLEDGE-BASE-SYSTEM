@@ -34,7 +34,7 @@
 
 ### 🔧 1. Клонирование репозитория
 ```bash
-git clone https://github.com/yourusername/knowledge-base-system.git
+git clone https://github.com/Garfild13-06/KNOWLEDGE-BASE-SYSTEM
 cd knowledge-base-system
 ```
 
