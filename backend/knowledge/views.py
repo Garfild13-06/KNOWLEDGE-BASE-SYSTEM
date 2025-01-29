@@ -44,17 +44,17 @@ class FileUploadView(APIView):
     parser_classes = [MultiPartParser, FormParser]
 
     def post(self, request, *args, **kwargs):
-        if 'upload' not in request.FILES:
-            return Response({'error': 'No file uploaded'}, status=400)
+        print("🔹 request.FILES.keys():", request.FILES.keys())  # Логируем переданные файлы
 
-        file_obj = request.FILES['upload']
-        file_name = file_obj.name
-        file_path = os.path.join(settings.MEDIA_ROOT, 'uploads', file_name)
+        if not request.FILES:
+            return Response({"success": False, "message": "Файл не передан"}, status=400)
 
-        # Сохраняем файл
-        saved_path = default_storage.save(file_path, file_obj)
+        file_key = next(iter(request.FILES.keys()))  # Получаем первый ключ из request.FILES
+        file_obj = request.FILES[file_key]  # Используем правильный ключ
+        file_path = default_storage.save(f"{file_obj.name}", file_obj)
+        full_url = request.build_absolute_uri(settings.MEDIA_URL + file_obj.name)
 
-        # Создаём полный URL
-        file_url = request.build_absolute_uri(settings.MEDIA_URL + saved_path.replace(settings.MEDIA_ROOT, '').lstrip('/'))
-
-        return Response({"url": file_url}, status=201)
+        return Response({
+            "success": True,
+            "data": {"files": [full_url]}
+        })

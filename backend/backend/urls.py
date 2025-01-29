@@ -12,7 +12,7 @@ router.register(r'articles', ArticleViewSet, basename='article')
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include(router.urls)),
-    path('api/uploads/', FileUploadView.as_view(), name='file-upload'),  # Добавляем эндпоинт для загрузки файлов
+    path("api/uploads/", FileUploadView.as_view(), name="file-upload"),
 ]
 
 # Добавляем маршруты для медиа-файлов (только в режиме разработки)
