@@ -5,3 +5,4 @@ const BASE_URL = '/api'; // Указываем прокси, а не прямо�
 export const api = axios.create({
     baseURL: BASE_URL,
 });
+

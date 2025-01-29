@@ -16,12 +16,14 @@ import { ViewModule, ViewList } from '@mui/icons-material';
 import { useViewType } from '../contexts/ViewTypeContext';
 import ShelfCard from '../components/ShelfCard';
 import ShelfList from '../components/ShelfList';
+import { useNavigate } from 'react-router-dom';
 
 const SectionPage = () => {
     const [sections, setSections] = useState([]);
     const [open, setOpen] = useState(false);
     const [newSection, setNewSection] = useState({ name: '', description: '' });
     const { viewType, setViewType } = useViewType();
+    const navigate = useNavigate();
 
     useEffect(() => {
         const loadSections = async () => {
@@ -55,8 +57,9 @@ const SectionPage = () => {
     };
 
     const handleNavigate = (id) => {
-        window.location.href = `/sections/${id}`;
+        navigate(`/sections/${id}`);
     };
+
 
     return (
         <div>
