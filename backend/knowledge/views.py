@@ -58,3 +58,14 @@ class FileUploadView(APIView):
             "success": True,
             "data": {"files": [full_url]}
         })
+        
+class TinyMCEUploadView(APIView):
+    parser_classes = [MultiPartParser]
+
+    def post(self, request, *args, **kwargs):
+        file = request.FILES["file"]
+        file_name = default_storage.save(os.path.join("uploads", file.name), file)
+        file_url = request.build_absolute_uri(settings.MEDIA_URL + file_name)
+        
+        return Response({"location": file_url})
+

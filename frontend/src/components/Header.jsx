@@ -6,7 +6,16 @@ const Header = () => {
     return (
         <AppBar position="sticky">
             <Toolbar>
-                <Typography variant="h6" component={Link} to="/" style={{ flexGrow: 1, textDecoration: 'none', color: 'inherit' }}>
+                <Typography
+                    variant="h6"
+                    component={Link} to="/"
+                    style={
+                        {
+                            flexGrow: 1,
+                            textDecoration: 'none',
+                            color: 'inherit'
+                        }
+                    }>
                     Knowledge Base
                 </Typography>
                 <Button color="inherit" component={Link} to="/articles">Файлы</Button>

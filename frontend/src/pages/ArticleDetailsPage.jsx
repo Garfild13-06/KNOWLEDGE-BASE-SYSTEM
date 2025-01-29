@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { api } from '../services/api';
-import JoditTextEditor from "../components/JoditEditor";
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { api } from "../services/api";
 import {
     Breadcrumbs,
     Link,
@@ -12,80 +11,153 @@ import {
     DialogActions,
     DialogContent,
     DialogTitle,
-} from '@mui/material';
+} from "@mui/material";
+import RichTextEditor from "../components/RichTextEditor"; // Новый редактор
+
+import Divider from '@mui/material/Divider';
 
 const ArticleDetailsPage = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const [article, setArticle] = useState(null);
+    const [breadcrumbs, setBreadcrumbs] = useState([]);
     const [isEditing, setIsEditing] = useState(false);
     const [editedContent, setEditedContent] = useState("");
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
 
     useEffect(() => {
-        const fetchArticle = async () => {
-            const response = await api.get(`/articles/${id}/`);
-            setArticle(response.data);
-            setEditedContent(response.data.content);
+        const fetchArticleData = async () => {
+            try {
+                const articleResponse = await api.get(`/articles/${id}/`);
+                setArticle(articleResponse.data);
+                setEditedContent(articleResponse.data.content); // Загружаем контент в TinyMCE
+
+                const fetchBreadcrumbs = async (sectionId, breadcrumbs = []) => {
+                    const sectionResponse = await api.get(`/sections/${sectionId}/`);
+                    breadcrumbs.unshift({ id: sectionResponse.data.id, name: sectionResponse.data.name });
+                    if (sectionResponse.data.parent) {
+                        return fetchBreadcrumbs(sectionResponse.data.parent, breadcrumbs);
+                    }
+                    return breadcrumbs;
+                };
+
+                const breadcrumbsPath = await fetchBreadcrumbs(articleResponse.data.section);
+                setBreadcrumbs(breadcrumbsPath);
+            } catch (error) {
+                console.error("Ошибка при загрузке данных книги:", error);
+            }
         };
-        fetchArticle();
+
+        fetchArticleData();
     }, [id]);
 
-    const handleSave = async () => {
-        await api.put(`/articles/${id}/`, { ...article, content: editedContent });
-        setArticle({ ...article, content: editedContent });
+    const handleEdit = () => {
+        setIsEditing(true);
+    };
+
+    const handleCancelEdit = () => {
         setIsEditing(false);
+        setEditedContent(article.content);
+    };
+
+    const handleSave = async () => {
+        try {
+            const response = await api.put(`/articles/${id}/`, { ...article, content: editedContent });
+            setArticle(response.data);
+            setIsEditing(false);
+        } catch (error) {
+            console.error("Ошибка при сохранении изменений:", error);
+            alert("Не удалось сохранить изменения.");
+        }
     };
 
     const handleDelete = async () => {
-        await api.delete(`/articles/${id}/`);
-        navigate(`/sections/${article.section}`);
+        try {
+            await api.delete(`/articles/${id}/`);
+            navigate(`/sections/${article.section}`);
+        } catch (error) {
+            console.error("Ошибка при удалении книги:", error);
+            alert("Не удалось удалить книгу.");
+        }
     };
 
-    if (!article) return <Typography>Загрузка...</Typography>;
+    if (!article) {
+        return <Typography>Загрузка...</Typography>;
+    }
 
     return (
         <div>
+            {/* Хлебные крошки */}
             <Breadcrumbs aria-label="breadcrumb" style={{ marginBottom: "20px" }}>
                 <Link underline="hover" color="inherit" onClick={() => navigate("/")} style={{ cursor: "pointer" }}>
                     Главная
                 </Link>
+                {breadcrumbs.map((breadcrumb) => (
+                    <Link
+                        key={breadcrumb.id}
+                        underline="hover"
+                        color="inherit"
+                        onClick={() => navigate(`/sections/${breadcrumb.id}`)}
+                        style={{ cursor: "pointer" }}
+                    >
+                        {breadcrumb.name}
+                    </Link>
+                ))}
                 <Typography color="text.primary">{article.title}</Typography>
             </Breadcrumbs>
 
             {isEditing ? (
                 <div>
-                    <JoditTextEditor value={editedContent} onChange={setEditedContent} />
-                    <Box display="flex" justifyContent="space-between" mt={2}>
+                    {/* Редактируемый режим */}
+                    <Typography variant="h5" gutterBottom>
+                        Редактирование: {article.title}
+                    </Typography>
+                    <RichTextEditor value={editedContent} onChange={setEditedContent} />
+                    <Box display="flex" justifyContent="left" mt={2}>
                         <Button variant="contained" color="primary" onClick={handleSave}>
                             Сохранить
                         </Button>
-                        <Button variant="outlined" color="secondary" onClick={() => setIsEditing(false)}>
+                        <Button variant="outlined" color="secondary" onClick={handleCancelEdit}>
                             Отменить
                         </Button>
                     </Box>
                 </div>
             ) : (
                 <div>
+                    {/* Обычный режим */}
                     <Typography variant="h4" gutterBottom>
                         {article.title}
                     </Typography>
-                    <div dangerouslySetInnerHTML={{ __html: article.content }} />
-                    <Box display="flex" justifyContent="space-between" mt={2}>
-                        <Button variant="contained" color="primary" onClick={() => setIsEditing(true)}>
+                    <Box display="flex" justifyContent="left" mt={2}>
+                        <Button variant="contained" color="primary" onClick={handleEdit}>
                             Изменить
                         </Button>
                         <Button variant="outlined" color="error" onClick={() => setOpenDeleteDialog(true)}>
                             Удалить
                         </Button>
                     </Box>
+                    
+                    <Divider></Divider>
+                    <div dangerouslySetInnerHTML={{ __html: article.content }} /> {/* Отображаем HTML-контент */}
+                    {/* <Box display="flex" justifyContent="space-between" mt={2}>
+                        <Button variant="contained" color="primary" onClick={handleEdit}>
+                            Изменить
+                        </Button>
+                        <Button variant="outlined" color="error" onClick={() => setOpenDeleteDialog(true)}>
+                            Удалить
+                        </Button>
+                    </Box> */}
                 </div>
             )}
 
+            {/* Диалог подтверждения удаления */}
             <Dialog open={openDeleteDialog} onClose={() => setOpenDeleteDialog(false)}>
                 <DialogTitle>Удалить книгу</DialogTitle>
                 <DialogContent>
-                    <Typography>Вы уверены, что хотите удалить "{article.title}"?</Typography>
+                    <Typography>
+                        Вы действительно хотите удалить книгу "{article.title}"? <br />
+                        Полный путь: Главная / {breadcrumbs.map((breadcrumb) => breadcrumb.name).join(" / ")}
+                    </Typography>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setOpenDeleteDialog(false)} color="secondary">
@@ -99,6 +171,5 @@ const ArticleDetailsPage = () => {
         </div>
     );
 };
-
 
 export default ArticleDetailsPage;

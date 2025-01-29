@@ -11,6 +11,7 @@ const JoditTextEditor = ({ value, onChange }) => {
             format: "json",
             imagesExtensions: ["jpg", "png", "jpeg", "gif"],
             method: "POST",
+            filesVariableName: () => "upload",
             isSuccess: (resp) => resp.success === true,
             getMessage: (resp) => resp.message || "Ошибка загрузки",
             error: (e) => console.error("Ошибка загрузки:", e),

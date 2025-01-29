@@ -12,7 +12,7 @@ const Footer = () => {
                 backgroundColor: 'primary.main',
                 color: 'white',
                 textAlign: 'center',
-                padding: '1rem',
+                // padding: '1rem',
                 boxShadow: '0 -2px 4px rgba(0, 0, 0, 0.1)',
             }}
         >
