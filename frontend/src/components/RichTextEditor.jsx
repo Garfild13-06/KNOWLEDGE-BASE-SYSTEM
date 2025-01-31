@@ -5,7 +5,7 @@ const RichTextEditor = ({ value, onChange }) => {
     const [editorContent, setEditorContent] = useState(value || "");
     return (
         <Editor
-            apiKey="your_api_key_for_TCEeditor"            
+            apiKey=""            
             value={editorContent}
             onEditorChange={(content) => {
                 setEditorContent(content);
