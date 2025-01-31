@@ -2,3 +2,4 @@ backend/media/uploads/*
 backend/backend/__pycache__
 frontend/package-lock.json
 backend/.env
+backend/backend/__pycache__/*

@@ -5,7 +5,7 @@ const RichTextEditor = ({ value, onChange }) => {
     const [editorContent, setEditorContent] = useState(value || "");
     return (
         <Editor
-            apiKey={import.meta.env.VITE_TINYMCE_API_KEY}
+            apiKey="your_api_key_for_TCEeditor"            
             value={editorContent}
             onEditorChange={(content) => {
                 setEditorContent(content);
