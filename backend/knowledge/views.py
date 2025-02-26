@@ -1,7 +1,8 @@
 from django.conf import settings  # Импортируем настройки проекта
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.viewsets import ModelViewSet
 from .models import Section, Article
-from .serializers import SectionSerializer, ArticleSerializer
+from .serializers import SectionSerializer, ArticleSerializer, TreeSectionSerializer
 from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
@@ -18,13 +19,13 @@ class SectionViewSet(ModelViewSet):
     """
     queryset = Section.objects.all()
     serializer_class = SectionSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]  # Чтение для всех, изменение — для авторизованных
 
-    def get_queryset(self):
+    def post_queryset(self):
         parent_id = self.request.query_params.get('parent')
         if parent_id:
             return Section.objects.filter(parent_id=parent_id)
         return super().get_queryset()
-    
 
 
 class ArticleViewSet(ModelViewSet):
@@ -33,12 +34,14 @@ class ArticleViewSet(ModelViewSet):
     """
     queryset = Article.objects.all()
     serializer_class = ArticleSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]  # Чтение для всех, изменение — для авторизованных
 
     def get_queryset(self):
         section_id = self.request.query_params.get('section')
         if section_id:
             return Article.objects.filter(section_id=section_id)
         return super().get_queryset()
+
 
 class FileUploadView(APIView):
     parser_classes = [MultiPartParser, FormParser]
@@ -58,7 +61,8 @@ class FileUploadView(APIView):
             "success": True,
             "data": {"files": [full_url]}
         })
-        
+
+
 class TinyMCEUploadView(APIView):
     parser_classes = [MultiPartParser]
 
@@ -66,6 +70,13 @@ class TinyMCEUploadView(APIView):
         file = request.FILES["file"]
         file_name = default_storage.save(os.path.join("uploads", file.name), file)
         file_url = request.build_absolute_uri(settings.MEDIA_URL + file_name)
-        
+
         return Response({"location": file_url})
 
+class TreeSectionsView(APIView):
+    def get(self, request):
+        # Получаем корневые разделы
+        root_sections = Section.objects.filter(parent__isnull=True)
+        # Сериализуем их вместе с дочерними разделами
+        serializer = SectionSerializer(root_sections, many=True)
+        return Response(serializer.data)

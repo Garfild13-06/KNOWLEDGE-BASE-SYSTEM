@@ -5,7 +5,7 @@ const RichTextEditor = ({ value, onChange }) => {
     const [editorContent, setEditorContent] = useState(value || "");
     return (
         <Editor
-            apiKey=""            
+            apiKey="3ghe6x6lazb4cgbytjrsyr4nvu3x8xi8nzvjt6d087ywptfs"            
             value={editorContent}
             onEditorChange={(content) => {
                 setEditorContent(content);

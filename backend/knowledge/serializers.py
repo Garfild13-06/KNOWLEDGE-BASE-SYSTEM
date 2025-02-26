@@ -3,18 +3,16 @@ from .models import Section, Article
 
 class SectionSerializer(serializers.ModelSerializer):
     children = serializers.SerializerMethodField()
-    url = serializers.HyperlinkedIdentityField(view_name='section-detail')
 
     class Meta:
         model = Section
-        fields = ['id', 'url', 'name', 'description', 'parent', 'children']
+        fields = ['id', 'name', 'parent', 'children']
 
     def get_children(self, obj):
-        return SectionSerializer(
-            obj.children.all(),
-            many=True,
-            context=self.context
-        ).data
+        # Получаем дочерние разделы текущего объекта
+        children = Section.objects.filter(parent=obj)
+        # Рекурсивно сериализуем их
+        return SectionSerializer(children, many=True).data
 
 
 
@@ -22,3 +20,17 @@ class ArticleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Article
         fields = '__all__'
+
+
+class TreeSectionSerializer(serializers.ModelSerializer):
+    children = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Section
+        fields = ['id', 'name', 'parent', 'children']
+
+    def get_children(self, obj):
+        # Получаем дочерние разделы текущего объекта
+        children = Section.objects.filter(parent=obj)
+        # Рекурсивно сериализуем их
+        return SectionSerializer(children, many=True).data

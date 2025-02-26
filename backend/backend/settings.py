@@ -1,4 +1,6 @@
 import os
+from datetime import timedelta
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -146,3 +148,14 @@ STATIC_ROOT = BASE_DIR / 'static'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),  # Токен доступа живет 1 день
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=2),    # Токен обновления живет 2 дня
+}
