@@ -7,7 +7,6 @@ const FolderTree = ({ folders, currentSectionId }) => {
   const navigate = useNavigate();
   const [open, setOpen] = useState({});
 
-  // Функция для получения пути до текущей папки
   const getParentPath = (folderId, foldersMap) => {
     const path = [];
     let current = foldersMap[folderId];
@@ -18,10 +17,8 @@ const FolderTree = ({ folders, currentSectionId }) => {
     return path;
   };
 
-  // Автоматическое раскрытие папок при загрузке или изменении currentSectionId
   useEffect(() => {
-    if (currentSectionId) {
-      // Создаём карту папок для быстрого доступа по id
+    if (currentSectionId && folders.length > 0) { // Добавлена проверка folders
       const foldersMap = {};
       const buildMap = (folderList) => {
         folderList.forEach((folder) => {
@@ -33,25 +30,22 @@ const FolderTree = ({ folders, currentSectionId }) => {
       };
       buildMap(folders);
 
-      // Получаем путь до активной папки
       const pathToOpen = getParentPath(currentSectionId, foldersMap);
-      // Раскрываем все папки на пути
       const newOpenState = { ...open };
       pathToOpen.forEach((id) => {
         newOpenState[id] = true;
       });
       setOpen(newOpenState);
     }
-  }, [currentSectionId, folders]);
+  }, [currentSectionId, folders]); // folders добавлен в зависимости
 
-  // Переключение состояния открытия/закрытия папки
   const handleToggle = (id) => {
     setOpen((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
-  // Рекурсивная функция для отрисовки дерева
   const renderTree = (folder, level = 0) => {
     const isActive = folder.id === currentSectionId;
+    const hasChildren = folder.children && folder.children.length > 0;
 
     return (
       <React.Fragment key={folder.id}>
@@ -60,9 +54,9 @@ const FolderTree = ({ folders, currentSectionId }) => {
           onClick={() => navigate(`/sections/${folder.id}`)}
           sx={{
             paddingLeft: `${level * 20}px`,
-            backgroundColor: isActive ? '#e0e0e0' : 'inherit',
+            backgroundColor: isActive ? '#d0d0d0' : 'inherit', // Чуть темнее для контраста
             '&:hover': {
-              backgroundColor: isActive ? '#e0e0e0' : '#f5f5f5',
+              backgroundColor: isActive ? '#d0d0d0' : '#f5f5f5',
             },
           }}
         >
@@ -70,13 +64,13 @@ const FolderTree = ({ folders, currentSectionId }) => {
             <Folder />
           </ListItemIcon>
           <ListItemText primary={folder.name} />
-          {folder.children.length > 0 && (
+          {hasChildren && (
             <span onClick={(e) => { e.stopPropagation(); handleToggle(folder.id); }}>
               {open[folder.id] ? <ExpandLess /> : <ExpandMore />}
             </span>
           )}
         </ListItem>
-        {folder.children.length > 0 && (
+        {hasChildren && (
           <Collapse in={open[folder.id]} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
               {folder.children.map((child) => renderTree(child, level + 1))}

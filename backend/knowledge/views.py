@@ -21,7 +21,11 @@ class SectionViewSet(ModelViewSet):
     serializer_class = SectionSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]  # Чтение для всех, изменение — для авторизованных
 
-    def post_queryset(self):
+    def perform_create(self, serializer):
+        print('Создание раздела с parent:', serializer.validated_data.get('parent'))
+        serializer.save()
+
+    def get_queryset(self):
         parent_id = self.request.query_params.get('parent')
         if parent_id:
             return Section.objects.filter(parent_id=parent_id)
@@ -72,6 +76,7 @@ class TinyMCEUploadView(APIView):
         file_url = request.build_absolute_uri(settings.MEDIA_URL + file_name)
 
         return Response({"location": file_url})
+
 
 class TreeSectionsView(APIView):
     def get(self, request):

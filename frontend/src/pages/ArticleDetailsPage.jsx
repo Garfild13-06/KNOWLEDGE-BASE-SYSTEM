@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link as RouterLink } from "react-router-dom";
 import { api } from "../services/api";
 import {
     Breadcrumbs,
@@ -12,8 +12,7 @@ import {
     DialogContent,
     DialogTitle,
 } from "@mui/material";
-import RichTextEditor from "../components/RichTextEditor"; // Новый редактор
-
+import RichTextEditor from "../components/RichTextEditor";
 import Divider from '@mui/material/Divider';
 
 const ArticleDetailsPage = () => {
@@ -30,7 +29,7 @@ const ArticleDetailsPage = () => {
             try {
                 const articleResponse = await api.get(`/articles/${id}/`);
                 setArticle(articleResponse.data);
-                setEditedContent(articleResponse.data.content); // Загружаем контент в TinyMCE
+                setEditedContent(articleResponse.data.content);
 
                 const fetchBreadcrumbs = async (sectionId, breadcrumbs = []) => {
                     const sectionResponse = await api.get(`/sections/${sectionId}/`);
@@ -89,15 +88,14 @@ const ArticleDetailsPage = () => {
         <div>
             {/* Хлебные крошки */}
             <Breadcrumbs aria-label="breadcrumb" style={{ marginBottom: "20px" }}>
-                <Link underline="hover" color="inherit" onClick={() => navigate("/")} style={{ cursor: "pointer" }}>
+                <Link component={RouterLink} to="/" style={{ cursor: "pointer" }}>
                     Главная
                 </Link>
                 {breadcrumbs.map((breadcrumb) => (
                     <Link
                         key={breadcrumb.id}
-                        underline="hover"
-                        color="inherit"
-                        onClick={() => navigate(`/sections/${breadcrumb.id}`)}
+                        component={RouterLink}
+                        to={`/sections/${breadcrumb.id}`}
                         style={{ cursor: "pointer" }}
                     >
                         {breadcrumb.name}
@@ -136,17 +134,9 @@ const ArticleDetailsPage = () => {
                             Удалить
                         </Button>
                     </Box>
-                    
+
                     <Divider></Divider>
                     <div dangerouslySetInnerHTML={{ __html: article.content }} /> {/* Отображаем HTML-контент */}
-                    {/* <Box display="flex" justifyContent="space-between" mt={2}>
-                        <Button variant="contained" color="primary" onClick={handleEdit}>
-                            Изменить
-                        </Button>
-                        <Button variant="outlined" color="error" onClick={() => setOpenDeleteDialog(true)}>
-                            Удалить
-                        </Button>
-                    </Box> */}
                 </div>
             )}
 

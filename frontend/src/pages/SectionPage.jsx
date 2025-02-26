@@ -60,7 +60,6 @@ const SectionPage = () => {
         navigate(`/sections/${id}`);
     };
 
-
     return (
         <div>
             <Typography variant="h4" gutterBottom>
@@ -97,7 +96,7 @@ const SectionPage = () => {
                             <ShelfCard
                                 name={section.name}
                                 description={section.description}
-                                onClick={() => handleNavigate(section.id)} // Добавлена интерактивность
+                                onClick={() => handleNavigate(section.id)}
                             />
                         </Grid>
                     ))}
@@ -108,7 +107,7 @@ const SectionPage = () => {
                         id: section.id,
                         title: section.name,
                     }))}
-                    onClick={(id) => handleNavigate(id)} // Добавлена интерактивность
+                    onClick={(id) => handleNavigate(id)}
                 />
             )}
 
