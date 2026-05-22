@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from .models import Section, Article
+
+from .models import Article, ArticleVersion, Organization, Section, UserProfile
 from .utils import make_snippet, strip_html
 
 
@@ -13,6 +14,12 @@ def _attach_prefetched_children(sections):
     return sections
 
 
+class OrganizationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Organization
+        fields = ['id', 'name', 'slug']
+
+
 class SectionSerializer(serializers.ModelSerializer):
     children = serializers.SerializerMethodField()
     created_by_username = serializers.CharField(source='created_by.username', read_only=True)
@@ -20,10 +27,12 @@ class SectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Section
         fields = [
-            'id', 'name', 'description', 'parent', 'children',
+            'id', 'name', 'description', 'parent', 'children', 'organization',
             'created_at', 'updated_at', 'created_by', 'created_by_username',
         ]
-        read_only_fields = ['created_at', 'updated_at', 'created_by', 'created_by_username']
+        read_only_fields = [
+            'created_at', 'updated_at', 'created_by', 'created_by_username', 'organization',
+        ]
 
     def get_children(self, obj):
         children = getattr(obj, 'prefetched_children', None)
@@ -40,31 +49,63 @@ class ArticleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Article
         fields = [
-            'id', 'title', 'content', 'section', 'file',
+            'id', 'title', 'content', 'section', 'file', 'organization',
             'created_at', 'updated_at', 'created_by', 'updated_by',
             'created_by_username', 'updated_by_username', 'section_name',
         ]
         read_only_fields = [
             'created_at', 'updated_at', 'created_by', 'updated_by',
-            'created_by_username', 'updated_by_username', 'section_name',
+            'created_by_username', 'updated_by_username', 'section_name', 'organization',
         ]
+
+
+class ArticleVersionSerializer(serializers.ModelSerializer):
+    created_by_username = serializers.CharField(source='created_by.username', read_only=True)
+
+    class Meta:
+        model = ArticleVersion
+        fields = [
+            'id', 'version_number', 'title', 'content', 'change_summary',
+            'created_at', 'created_by', 'created_by_username',
+        ]
+        read_only_fields = fields
+
+
+class ArticleVersionDetailSerializer(ArticleVersionSerializer):
+    class Meta(ArticleVersionSerializer.Meta):
+        fields = ArticleVersionSerializer.Meta.fields + ['content_plain']
 
 
 class ArticleSearchResultSerializer(serializers.ModelSerializer):
     section_id = serializers.IntegerField(source='section.id', read_only=True)
     section_name = serializers.CharField(source='section.name', read_only=True)
     snippet = serializers.SerializerMethodField()
+    search_rank = serializers.IntegerField(read_only=True, required=False)
 
     class Meta:
         model = Article
-        fields = ['id', 'title', 'section_id', 'section_name', 'snippet', 'updated_at']
+        fields = [
+            'id', 'title', 'section_id', 'section_name', 'snippet',
+            'updated_at', 'search_rank',
+        ]
 
     def get_snippet(self, obj):
         query = self.context.get('query', '')
+        text = obj.content_plain or strip_html(obj.content or '')
         if query:
-            return make_snippet(obj.content or obj.title, query)
-        return strip_html(obj.content or '')[:160]
+            return make_snippet(text or obj.title, query)
+        return text[:160]
 
 
-class TreeSectionSerializer(SectionSerializer):
-    pass
+class UserMeSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    username = serializers.CharField()
+    role = serializers.CharField()
+    role_display = serializers.CharField()
+    can_edit = serializers.BooleanField()
+    is_admin = serializers.BooleanField()
+    organization = OrganizationSerializer()
+
+
+class JoinOrganizationSerializer(serializers.Serializer):
+    organization_slug = serializers.SlugField()

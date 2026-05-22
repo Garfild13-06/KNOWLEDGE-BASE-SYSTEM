@@ -17,6 +17,7 @@ import RequireAuth from "../components/RequireAuth";
 import Divider from '@mui/material/Divider';
 import DOMPurify from 'dompurify';
 import { formatDateTime } from '../utils/formatDate';
+import ArticleVersionHistory from '../components/ArticleVersionHistory';
 
 const ArticleDetailsPage = () => {
     const { id } = useParams();
@@ -148,6 +149,13 @@ const ArticleDetailsPage = () => {
                             <Button variant="outlined" color="error" onClick={() => setOpenDeleteDialog(true)} sx={{ ml: 1 }}>
                                 Удалить
                             </Button>
+                            <ArticleVersionHistory
+                                articleId={id}
+                                onRestored={(data) => {
+                                    setArticle(data);
+                                    setEditedContent(data.content);
+                                }}
+                            />
                         </Box>
                     </RequireAuth>
 

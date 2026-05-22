@@ -4,6 +4,7 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from knowledge.views import SectionViewSet, ArticleViewSet, TinyMCEUploadView, TreeSectionsView
+from knowledge.auth_views import MeView, JoinOrganizationView, AuthProvidersView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 router = DefaultRouter()
@@ -16,6 +17,9 @@ urlpatterns = [
     path("uploads/", TinyMCEUploadView.as_view(), name="tinymce-upload"),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view()),
+    path('api/auth/me/', MeView.as_view(), name='auth_me'),
+    path('api/auth/join-organization/', JoinOrganizationView.as_view(), name='auth_join_org'),
+    path('api/auth/providers/', AuthProvidersView.as_view(), name='auth_providers'),
     path('tree_sections/', TreeSectionsView.as_view(), name='tree_sections'),
 
 ]
