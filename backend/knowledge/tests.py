@@ -167,6 +167,59 @@ class UploadAPITestCase(KnowledgeTestMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 
+class DashboardAPITestCase(KnowledgeTestMixin, APITestCase):
+    def test_dashboard_returns_sections(self):
+        section = Section.objects.create(name='Dash', organization=self.organization)
+        Article.objects.create(
+            title='Recent',
+            content='x',
+            content_plain='x',
+            section=section,
+            organization=self.organization,
+        )
+        response = self.client.get('/api/dashboard/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('recent', response.data)
+        self.assertIn('stats', response.data)
+
+
+class HealthAPITestCase(APITestCase):
+    def test_health_ok(self):
+        response = self.client.get('/api/health/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['status'], 'ok')
+
+
+class ArticlePublishAPITestCase(KnowledgeTestMixin, APITestCase):
+    def setUp(self):
+        super().setUp()
+        self.editor = self.create_user('pubeditor')
+        self.section = Section.objects.create(name='Pub', organization=self.organization)
+        self.client.force_authenticate(user=self.editor)
+
+    def test_publish_draft(self):
+        article = Article.objects.create(
+            title='Draft',
+            content='<p>d</p>',
+            section=self.section,
+            organization=self.organization,
+            status=Article.STATUS_DRAFT,
+            is_published=False,
+            created_by=self.editor,
+        )
+        response = self.client.post(f'/articles/{article.id}/publish/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        article.refresh_from_db()
+        self.assertTrue(article.is_published)
+
+
+class TemplatesAPITestCase(APITestCase):
+    def test_templates_list(self):
+        response = self.client.get('/api/templates/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertGreater(len(response.data['templates']), 0)
+
+
 class UtilsTestCase(APITestCase):
     def test_strip_html(self):
         self.assertEqual(strip_html('<p>Hi <b>there</b></p>'), 'Hi there')

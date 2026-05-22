@@ -19,6 +19,7 @@ import ShelfList from '../components/ShelfList';
 import { useNavigate } from 'react-router-dom';
 import RequireAuth from '../components/RequireAuth';
 import { useFoldersRefresh } from '../contexts/FoldersContext';
+import DashboardPanel from '../components/DashboardPanel';
 
 const SectionPage = () => {
     const [sections, setSections] = useState([]);
@@ -66,6 +67,7 @@ const SectionPage = () => {
 
     return (
         <div>
+            <DashboardPanel />
             <Typography variant="h4" gutterBottom>
                 Папки
             </Typography>

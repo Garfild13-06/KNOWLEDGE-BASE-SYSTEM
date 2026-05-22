@@ -17,6 +17,24 @@
 | **Организации** | Multi-tenancy: данные изолированы по `Organization` |
 | **OAuth** | Вход через Google (опционально, при настройке env) |
 | **Безопасность** | DOMPurify для HTML, защита upload, CORS и DEBUG из переменных окружения |
+| **UX (пакет A)** | Тёмная тема, черновики/публикация, шаблоны статей, wiki-ссылки `[[статья]]`, экспорт MD/HTML, дашборд |
+| **Поиск+ (пакет B)** | Семантически похожие статьи (`KB_ENABLE_SEMANTIC_SEARCH`) |
+| **AI (пакет C)** | Суммаризация, RAG, линтер — **выключено по умолчанию** (`KB_ENABLE_AI` + `OPENAI_API_KEY`) |
+| **Коллаборация (D)** | Комментарии, ревью, diff версий, webhooks, импорт Markdown, публичный портал `/docs/{org}/{slug}` |
+| **Инфра (E)** | Health `/api/health/`, audit log, 17+ backend-тестов в CI |
+| **Креатив (F)** | Граф связей, закладки, песочница с TTL (`KB_SANDBOX_TTL_HOURS`) |
+
+### Включение опциональных функций
+
+Скопируйте [.env.example](.env.example) и задайте переменные в `backend/.env` или в корне для Docker Compose:
+
+```bash
+KB_ENABLE_AI=false              # true + OPENAI_API_KEY для AI
+KB_ENABLE_SEMANTIC_SEARCH=false # похожие статьи и семантический поиск
+KB_ENABLE_GRAPH_VIEW=true       # страница «Граф» в UI
+```
+
+Полный список пакетов: [docs/PACKAGES.md](docs/PACKAGES.md)
 
 ---
 

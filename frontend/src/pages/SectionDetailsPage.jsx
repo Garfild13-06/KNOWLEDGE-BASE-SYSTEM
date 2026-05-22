@@ -14,6 +14,10 @@ import {
   TextField,
   Grid,
   ButtonGroup,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from '@mui/material';
 import { ViewModule, ViewList } from '@mui/icons-material';
 import { useViewType } from '../contexts/ViewTypeContext';
@@ -37,7 +41,14 @@ const SectionDetailsPage = () => {
   const [breadcrumbs, setBreadcrumbs] = useState([]);
   const [openNewBook, setOpenNewBook] = useState(false);
   const [openNewShelf, setOpenNewShelf] = useState(false);
-  const [newBook, setNewBook] = useState({ title: '', content: '', section: id });
+  const [newBook, setNewBook] = useState({
+    title: '',
+    content: '',
+    section: id,
+    template_key: 'blank',
+    status: 'draft',
+  });
+  const [templates, setTemplates] = useState([]);
   const [newShelf, setNewShelf] = useState({ name: '', description: '', parent: parentId });
 
   useEffect(() => {
@@ -69,6 +80,9 @@ const SectionDetailsPage = () => {
     };
 
     fetchData();
+    api.get('/api/templates/')
+      .then((r) => setTemplates(r.data.templates || []))
+      .catch(() => setTemplates([]));
   }, [id]);
 
   if (!section) {
@@ -76,12 +90,31 @@ const SectionDetailsPage = () => {
   }
 
   const resetNewBook = () => {
-    setNewBook({ title: '', content: '', section: id });
+    setNewBook({
+      title: '',
+      content: '',
+      section: id,
+      template_key: 'blank',
+      status: 'draft',
+    });
+  };
+
+  const applyTemplate = (key) => {
+    const tpl = templates.find((t) => t.key === key);
+    setNewBook((prev) => ({
+      ...prev,
+      template_key: key,
+      content: tpl?.content || prev.content,
+    }));
   };
 
   const handleCreateBook = async () => {
     try {
-      const response = await api.post('/articles/', { ...newBook, section: Number(id) });
+      const response = await api.post('/articles/', {
+        ...newBook,
+        section: Number(id),
+        is_published: newBook.status === 'published',
+      });
       setArticles((prev) => [...prev, response.data]);
       setOpenNewBook(false);
       resetNewBook();
@@ -217,6 +250,33 @@ const SectionDetailsPage = () => {
             fullWidth
             margin="normal"
           />
+          {templates.length > 0 && (
+            <FormControl fullWidth margin="normal">
+              <InputLabel>Шаблон</InputLabel>
+              <Select
+                value={newBook.template_key}
+                label="Шаблон"
+                onChange={(e) => applyTemplate(e.target.value)}
+              >
+                {templates.map((t) => (
+                  <MenuItem key={t.key} value={t.key}>
+                    {t.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          )}
+          <FormControl fullWidth margin="normal">
+            <InputLabel>Статус</InputLabel>
+            <Select
+              value={newBook.status}
+              label="Статус"
+              onChange={(e) => setNewBook({ ...newBook, status: e.target.value })}
+            >
+              <MenuItem value="draft">Черновик</MenuItem>
+              <MenuItem value="published">Опубликовано</MenuItem>
+            </Select>
+          </FormControl>
           <RichTextEditor
             value={newBook.content}
             onChange={(content) => setNewBook({ ...newBook, content })}

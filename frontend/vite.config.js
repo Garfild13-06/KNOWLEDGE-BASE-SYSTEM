@@ -10,6 +10,7 @@ const proxyRoutes = [
     '/uploads',
     '/media',
     '/admin',
+    '/docs',
 ];
 
 export default defineConfig(({ mode }) => {
