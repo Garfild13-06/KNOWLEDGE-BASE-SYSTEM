@@ -12,9 +12,9 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_USER: kb_admin
-      POSTGRES_PASSWORD: 5tr0ngP@ss  
-      POSTGRES_DB: knowledge_base
+      POSTGRES_USER: ${POSTGRES_USER:-kb_admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      POSTGRES_DB: ${POSTGRES_DB:-knowledge_base}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
@@ -34,7 +34,7 @@ services:
     command: >
       sh -c "python manage.py migrate &&
              python manage.py collectstatic --noinput &&
-             gunicorn --bind backend:8000 --workers 3 backend.wsgi"
+             gunicorn --bind 0.0.0.0:8000 --workers 3 backend.wsgi"
     volumes:
       - backend_static:/app/static
       - backend_media:/app/media
@@ -49,7 +49,8 @@ services:
       context: ./frontend  # ✅ Контекст - это папка с фронтом
       dockerfile: Dockerfile  # ✅ Указываем правильный Dockerfile
       args:
-        - VITE_API_URL=http://backend:8000  # Передаём переменные в Dockerfile
+        - VITE_API_URL=/
+        - VITE_TINYMCE_API_KEY=${VITE_TINYMCE_API_KEY:-}
     # env_file:
     #   - ./frontend/.env  # Переменные для React
     ports:

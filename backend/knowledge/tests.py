@@ -1,3 +1,76 @@
-from django.test import TestCase
+from django.contrib.auth.models import User
+from django.core.files.uploadedfile import SimpleUploadedFile
+from rest_framework import status
+from rest_framework.test import APITestCase
 
-# Create your tests here.
+from .models import Section, Article
+
+
+class SectionAPITestCase(APITestCase):
+    def setUp(self):
+        self.section = Section.objects.create(
+            name='Root',
+            description='Root description',
+        )
+
+    def test_section_list_includes_description(self):
+        response = self.client.get('/sections/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        item = next(row for row in response.data if row['id'] == self.section.id)
+        self.assertEqual(item['description'], 'Root description')
+
+    def test_create_section_requires_auth(self):
+        response = self.client.post('/sections/', {'name': 'Child'}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_authenticated_user_can_create_section(self):
+        user = User.objects.create_user(username='editor', password='secret123')
+        self.client.force_authenticate(user=user)
+        response = self.client.post(
+            '/sections/',
+            {'name': 'Child', 'description': 'Nested', 'parent': self.section.id},
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['description'], 'Nested')
+
+
+class UploadAPITestCase(APITestCase):
+    def test_upload_requires_auth(self):
+        file = SimpleUploadedFile('test.png', b'file_content', content_type='image/png')
+        response = self.client.post('/uploads/', {'file': file}, format='multipart')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_authenticated_upload_succeeds(self):
+        user = User.objects.create_user(username='uploader', password='secret123')
+        self.client.force_authenticate(user=user)
+        file = SimpleUploadedFile('test.png', b'file_content', content_type='image/png')
+        response = self.client.post('/uploads/', {'file': file}, format='multipart')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('location', response.data)
+
+
+class TreeSectionsAPITestCase(APITestCase):
+    def test_tree_returns_nested_children(self):
+        root = Section.objects.create(name='Root', description='R')
+        Section.objects.create(name='Child', description='C', parent=root)
+        response = self.client.get('/tree_sections/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        root_data = next(item for item in response.data if item['name'] == 'Root')
+        self.assertEqual(len(root_data['children']), 1)
+        self.assertEqual(root_data['children'][0]['description'], 'C')
+
+
+class ArticleAPITestCase(APITestCase):
+    def setUp(self):
+        self.section = Section.objects.create(name='Docs')
+        self.article = Article.objects.create(
+            title='Guide',
+            content='<p>Hello</p>',
+            section=self.section,
+        )
+
+    def test_list_articles_by_section(self):
+        response = self.client.get(f'/articles/?section={self.section.id}')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]['title'], 'Guide')

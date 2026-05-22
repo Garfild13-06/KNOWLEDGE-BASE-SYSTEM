@@ -1,44 +1,50 @@
-import React, {createContext, useContext, useState, useEffect} from 'react';
-import {useNavigate} from 'react-router-dom';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { AUTH_TOKEN_URL } from '../config';
 
 const AuthContext = createContext();
 
 export const useAuth = () => useContext(AuthContext);
 
-export const AuthProvider = ({children}) => {
+export const AuthProvider = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const navigate = useNavigate();
 
-    useEffect(() => {
-        const token = localStorage.getItem('access_token');
-        if (token) {
+    const applyToken = useCallback((access) => {
+        if (access) {
+            localStorage.setItem('access_token', access);
             setIsAuthenticated(true);
-            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         } else {
+            localStorage.removeItem('access_token');
             setIsAuthenticated(false);
-            delete axios.defaults.headers.common['Authorization'];
         }
     }, []);
 
+    useEffect(() => {
+        const token = localStorage.getItem('access_token');
+        setIsAuthenticated(Boolean(token));
+    }, []);
+
     const login = async (username, password) => {
-        const response = await axios.post('http://localhost:8000/api/token/', {username, password});
-        const {access} = response.data;
-        localStorage.setItem('access_token', access);
-        axios.defaults.headers.common['Authorization'] = `Bearer ${access}`;
-        setIsAuthenticated(true);
+        const response = await axios.post(AUTH_TOKEN_URL, { username, password });
+        const { access, refresh } = response.data;
+        applyToken(access);
+        if (refresh) {
+            localStorage.setItem('refresh_token', refresh);
+        }
         navigate('/');
     };
 
     const logout = () => {
         localStorage.removeItem('access_token');
-        delete axios.defaults.headers.common['Authorization'];
+        localStorage.removeItem('refresh_token');
         setIsAuthenticated(false);
         navigate('/login');
     };
 
     return (
-        <AuthContext.Provider value={{isAuthenticated, login, logout}}>
+        <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
             {children}
         </AuthContext.Provider>
     );

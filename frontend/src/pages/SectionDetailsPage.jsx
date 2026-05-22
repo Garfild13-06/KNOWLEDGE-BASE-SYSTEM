@@ -21,6 +21,7 @@ import ShelfCard from '../components/ShelfCard';
 import ShelfList from '../components/ShelfList';
 import BookCard from '../components/BookCard';
 import BookSpineList from '../components/BookSpineList';
+import RequireAuth from '../components/RequireAuth';
 
 const SectionDetailsPage = ({ onFolderUpdate }) => { // Добавлен пропс для обновления
   const { id } = useParams();
@@ -120,12 +121,14 @@ const SectionDetailsPage = ({ onFolderUpdate }) => { // Добавлен про�
       <Typography variant="body1" gutterBottom>{section.description}</Typography>
 
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-        <Button variant="contained" color="primary" onClick={() => setOpenNewBook(true)}>
-          Новый файл
-        </Button>
-        <Button variant="contained" color="secondary" onClick={() => setOpenNewShelf(true)}>
-          Новая подпапка
-        </Button>
+        <RequireAuth>
+          <Button variant="contained" color="primary" onClick={() => setOpenNewBook(true)}>
+            Новый файл
+          </Button>
+          <Button variant="contained" color="secondary" onClick={() => setOpenNewShelf(true)} sx={{ ml: 1 }}>
+            Новая подпапка
+          </Button>
+        </RequireAuth>
         <ButtonGroup>
           <Button
             variant={viewType === 'grid' ? 'contained' : 'outlined'}

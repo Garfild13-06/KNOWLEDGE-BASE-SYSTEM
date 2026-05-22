@@ -1,4 +1,5 @@
 import os
+import sys
 from datetime import timedelta
 
 from dotenv import load_dotenv
@@ -15,12 +16,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY')
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-dev-only-change-in-production')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'True').lower() in ('1', 'true', 'yes')
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost').split(',')
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+    if host.strip()
+]
 
 
 # Application definition
@@ -39,29 +44,35 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.common.CommonMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-MIDDLEWARE.insert(0, 'corsheaders.middleware.CorsMiddleware')
-# CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS').split(',')
-CORS_ALLOWED_ORIGINS=[
-    "http://127.0.0.1",
-    "http://localhost",
-    "http://192.168.95.143",
-    "http://backend",
-    "http://frontend"
+_cors_env = os.getenv('CORS_ALLOWED_ORIGINS', '')
+if _cors_env:
+    CORS_ALLOWED_ORIGINS = [origin.strip() for origin in _cors_env.split(',') if origin.strip()]
+    CORS_ALLOW_ALL_ORIGINS = False
+else:
+    CORS_ALLOWED_ORIGINS = [
+        'http://127.0.0.1:5173',
+        'http://localhost:5173',
+        'http://127.0.0.1:3000',
+        'http://localhost:3000',
+        'http://127.0.0.1',
+        'http://localhost',
     ]
-CORS_ALLOW_ALL_ORIGINS = True  # Разрешаем все источники
+    CORS_ALLOW_ALL_ORIGINS = os.getenv('CORS_ALLOW_ALL_ORIGINS', 'False').lower() in (
+        '1', 'true', 'yes'
+    )
+
 CORS_ALLOW_CREDENTIALS = True
-# CORS_ALLOW_METHODS = ["GET", "POST", "OPTIONS", "DELETE", "PUT"]
-CORS_ALLOW_METHODS = ["*"]
-CORS_ALLOW_HEADERS = ["*"]
+CORS_ALLOW_METHODS = ['DELETE', 'GET', 'OPTIONS', 'PATCH', 'POST', 'PUT']
+CORS_ALLOW_HEADERS = ['authorization', 'content-type']
 
 ROOT_URLCONF = 'backend.urls'
 
@@ -87,22 +98,24 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': os.getenv('DB_ENGINE'),
-        # 'ENGINE': "django.db.backends.postgresql",
-        'NAME': os.getenv('DB_NAME'),
-        # 'NAME': "knowledge_base",
-        'USER': os.getenv('DB_USER'),
-        # 'USER': "kb_admin",
-        'PASSWORD': os.getenv('DB_PASSWORD'),
-        # 'PASSWORD': "5tr0ngP@ss",
-        'HOST': os.getenv('DB_HOST'),
-        # 'HOST': "localhost",
-        'PORT': os.getenv('DB_PORT')
-        # 'PORT': 5432
+if 'test' in sys.argv:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'test_db.sqlite3',
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.postgresql'),
+            'NAME': os.getenv('DB_NAME', 'knowledge_base'),
+            'USER': os.getenv('DB_USER', 'kb_admin'),
+            'PASSWORD': os.getenv('DB_PASSWORD', ''),
+            'HOST': os.getenv('DB_HOST', 'localhost'),
+            'PORT': os.getenv('DB_PORT', '5432'),
+        }
+    }
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

@@ -13,7 +13,9 @@ import {
     DialogTitle,
 } from "@mui/material";
 import RichTextEditor from "../components/RichTextEditor";
+import RequireAuth from "../components/RequireAuth";
 import Divider from '@mui/material/Divider';
+import DOMPurify from 'dompurify';
 
 const ArticleDetailsPage = () => {
     const { id } = useParams();
@@ -126,17 +128,23 @@ const ArticleDetailsPage = () => {
                     <Typography variant="h4" gutterBottom>
                         {article.title}
                     </Typography>
-                    <Box display="flex" justifyContent="left" mt={2}>
-                        <Button variant="contained" color="primary" onClick={handleEdit}>
-                            Изменить
-                        </Button>
-                        <Button variant="outlined" color="error" onClick={() => setOpenDeleteDialog(true)}>
-                            Удалить
-                        </Button>
-                    </Box>
+                    <RequireAuth>
+                        <Box display="flex" justifyContent="left" mt={2}>
+                            <Button variant="contained" color="primary" onClick={handleEdit}>
+                                Изменить
+                            </Button>
+                            <Button variant="outlined" color="error" onClick={() => setOpenDeleteDialog(true)} sx={{ ml: 1 }}>
+                                Удалить
+                            </Button>
+                        </Box>
+                    </RequireAuth>
 
                     <Divider></Divider>
-                    <div dangerouslySetInnerHTML={{ __html: article.content }} /> {/* Отображаем HTML-контент */}
+                    <div
+                        dangerouslySetInnerHTML={{
+                            __html: DOMPurify.sanitize(article.content || ''),
+                        }}
+                    />
                 </div>
             )}
 
