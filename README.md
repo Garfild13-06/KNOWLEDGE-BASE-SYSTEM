@@ -259,7 +259,8 @@ KNOWLEDGE-BASE-SYSTEM/
 
 - [docs/DEPLOY.md](docs/DEPLOY.md) — деплой в production
 - [docs/OAUTH.md](docs/OAUTH.md) — OAuth / SSO
-- [docs/ROADMAP.md](docs/ROADMAP.md) — план развития и GitHub Issues
+- [docs/ROADMAP.md](docs/ROADMAP.md) — статус волн P1–P3
+- [docs/PACKAGES.md](docs/PACKAGES.md) — **пакеты доработок A–F** (следующий этап)
 
 ---
 
