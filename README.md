@@ -1,178 +1,276 @@
-# 📚 Knowledge Base System
+# Knowledge Base System
 
-## 📖 Описание проекта
-**Knowledge Base System** — это веб-приложение для управления базой знаний, организованной в виде разделов (папок) и статей (файлов). Оно позволяет пользователям добавлять, редактировать и удалять статьи, а также структурировать их в иерархические разделы.
+Веб-приложение для корпоративной базы знаний: иерархия разделов, статьи с rich-text, поиск, версии, роли и изоляция по организациям.
 
-Проект построен на **Django (backend)** и **React (frontend, Vite)**, что обеспечивает удобство и гибкость использования.
-
-## 🚀 Функциональность
-- 📂 **Структурированные разделы** — создавайте иерархию папок для хранения информации.
-- 📝 **Статьи** — добавляйте, редактируйте и удаляйте статьи с текстовым содержимым.
-- 🔎 **Поиск и фильтрация** — удобная навигация по базе знаний.
-- 🔄 **REST API** — взаимодействие с backend через API.
-- 📷 **Загрузка файлов** — прикрепление файлов к статьям.
-- 🎨 **Интуитивно понятный UI** — удобный и отзывчивый интерфейс.
-
-## 🏗️ Технологии
-**Backend (Django 5.1.5)**:
-- Django REST Framework
-- CORS Headers
-- PostgreSQL (по умолчанию)
-- TinyMCE (редактор текста)
-
-**Frontend (React, Vite)**:
-- Material UI (MUI)
-- React Router
-- Axios
-
-**DevOps**:
-- Docker / Docker Compose
+**Стек:** Django 5 + DRF + PostgreSQL · React 18 + Vite + MUI · Docker Compose · JWT
 
 ---
 
-## 📥 Установка и запуск
+## Возможности
 
-### 🔧 1. Клонирование репозитория
-```bash
-git clone https://github.com/Garfild13-06/KNOWLEDGE-BASE-SYSTEM
-cd knowledge-base-system
-```
+| Область | Что умеет |
+|---------|-----------|
+| **Контент** | Разделы (дерево), статьи с TinyMCE, вложения, хлебные крошки |
+| **Поиск** | Глобальный поиск по заголовку и тексту, фильтры (раздел, автор, даты) |
+| **Версии** | История изменений статьи, просмотр и откат к прошлой версии |
+| **Доступ** | JWT, роли (читатель / редактор / администратор), гостевое чтение |
+| **Организации** | Multi-tenancy: данные изолированы по `Organization` |
+| **OAuth** | Вход через Google (опционально, при настройке env) |
+| **Безопасность** | DOMPurify для HTML, защита upload, CORS и DEBUG из переменных окружения |
 
-### 🐳 2. Запуск через Docker (рекомендуемый способ)
-> _**Требования**_: Установленные [Docker](https://www.docker.com/) и [Docker Compose](https://docs.docker.com/compose/).
+---
+
+## Быстрый старт (Docker)
+
+**Требования:** [Docker](https://www.docker.com/) и Docker Compose.
 
 ```bash
-docker-compose up --build
+git clone https://github.com/Garfild13-06/KNOWLEDGE-BASE-SYSTEM.git
+cd KNOWLEDGE-BASE-SYSTEM
+
+cp backend/.env.example backend/.env
+# Заполните SECRET_KEY, DB_PASSWORD и при необходимости VITE_TINYMCE_API_KEY
+
+docker compose up --build -d
 ```
-После успешного запуска:
-- Backend доступен по адресу **http://localhost:8000**
-- Frontend доступен по адресу **http://localhost:5173**
-- Админ-панель Django: **http://localhost:8000/admin/**
 
-### 🖥 3. Запуск вручную (локально)
+| Сервис | URL |
+|--------|-----|
+| Frontend | http://localhost:5173 |
+| Backend API | http://localhost:8000 |
+| Админка Django | http://localhost:8000/admin/ |
 
-#### 📌 Backend
-1. Установите зависимости:
-   ```bash
-   cd backend
-   python -m venv venv
-   source venv/bin/activate  # Для Windows: venv\Scripts\activate
-   pip install -r requirements.txt
-   ```
-2. Создайте `.env` файл и укажите настройки БД:
-   ```bash
-   cp .env.example .env
-   ```
-3. Примените миграции:
-   ```bash
-   python manage.py migrate
-   ```
-4. Создайте суперпользователя (для входа в админку):
-   ```bash
-   python manage.py createsuperuser
-   ```
-5. Запустите сервер:
-   ```bash
-   python manage.py runserver
-   ```
+**Первый вход:**
 
-#### 🌐 Frontend
-1. Установите зависимости:
-   ```bash
-   cd frontend
-   npm install
-   ```
-2. Запустите фронтенд:
-   ```bash
-   npm run dev
-   ```
-
----
-
-## 🔗 API
-**Основные маршруты API** (Django REST Framework):
-| Метод | Эндпоинт                | Описание                        |
-|-------|-------------------------|--------------------------------|
-| `GET` | `/api/sections/`        | Получить все разделы           |
-| `POST` | `/api/sections/`       | Создать новый раздел           |
-| `GET` | `/api/sections/{id}/`   | Получить информацию о разделе  |
-| `PUT` | `/api/sections/{id}/`   | Обновить раздел                |
-| `DELETE` | `/api/sections/{id}/`| Удалить раздел                 |
-| `GET` | `/api/articles/`        | Получить все статьи            |
-| `POST` | `/api/articles/`       | Создать новую статью           |
-| `GET` | `/api/articles/{id}/`   | Получить информацию о статье   |
-| `PUT` | `/api/articles/{id}/`   | Обновить статью                |
-| `DELETE` | `/api/articles/{id}/`| Удалить статью                 |
-
-### 🖊 Примеры использования API
-#### Получение списка статей:
 ```bash
-curl -X GET http://localhost:8000/api/articles/
+docker compose exec backend python manage.py createsuperuser
+docker compose exec backend python manage.py setup_kb_roles
 ```
 
-#### Создание новой статьи:
+Подробный production-гайд: [docs/DEPLOY.md](docs/DEPLOY.md)
+
+---
+
+## Локальная разработка
+
+### Backend
+
 ```bash
-curl -X POST http://localhost:8000/api/articles/ \
-     -H "Content-Type: application/json" \
-     -d '{"title": "Новая статья", "content": "Содержимое статьи", "section": 1}'
+cd backend
+python3 -m venv venv
+source venv/bin/activate          # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+cp .env.example .env              # настройте PostgreSQL или используйте Docker для db
+
+python manage.py migrate
+python manage.py setup_kb_roles
+python manage.py createsuperuser
+python manage.py runserver
+```
+
+### Frontend
+
+```bash
+cd frontend
+npm install
+cp .env.example .env              # VITE_API_URL оставьте пустым — работает vite proxy
+npm run dev                       # http://localhost:3000
+```
+
+Прокси Vite перенаправляет `/api`, `/sections`, `/articles` и др. на `http://localhost:8000`.
+
+### Тесты и CI
+
+```bash
+cd backend && python manage.py test knowledge
+cd frontend && npm run build
+```
+
+CI: [.github/workflows/ci.yml](.github/workflows/ci.yml)
+
+---
+
+## Аутентификация
+
+### Логин / пароль (JWT)
+
+```bash
+curl -X POST http://localhost:8000/api/token/ \
+  -H "Content-Type: application/json" \
+  -d '{"username": "admin", "password": "your-password"}'
+```
+
+Ответ: `access` и `refresh`. Для запросов с правом записи:
+
+```http
+Authorization: Bearer <access_token>
+```
+
+### Профиль и организация
+
+```bash
+curl http://localhost:8000/api/auth/me/ \
+  -H "Authorization: Bearer <access_token>"
+```
+
+Присоединение к организации:
+
+```bash
+curl -X POST http://localhost:8000/api/auth/join-organization/ \
+  -H "Authorization: Bearer <access_token>" \
+  -H "Content-Type: application/json" \
+  -d '{"organization_slug": "default"}'
+```
+
+### Google OAuth
+
+1. Настройте OAuth Client в Google Cloud Console.
+2. Добавьте в `backend/.env`:
+
+```env
+GOOGLE_OAUTH_CLIENT_ID=...
+GOOGLE_OAUTH_CLIENT_SECRET=...
+GOOGLE_OAUTH_REDIRECT_URI=http://localhost:8000/api/auth/google/callback/
+FRONTEND_URL=http://localhost:5173
+```
+
+3. На странице входа появится кнопка **«Войти через Google»**.
+
+Детали: [docs/OAUTH.md](docs/OAUTH.md)
+
+---
+
+## Роли
+
+| Роль | Права |
+|------|--------|
+| **Читатель** | Просмотр разделов и статей |
+| **Редактор** | Создание и редактирование контента |
+| **Администратор** | Всё выше + откат версий |
+
+Группы Django: `KB Reader`, `KB Editor`, `KB Admin`. Синхронизация с профилем:
+
+```bash
+python manage.py setup_kb_roles
 ```
 
 ---
 
-## 🖼 Интерфейс
+## API (основное)
 
-**🏠 Главная страница**  
-![Главная страница](https://via.placeholder.com/800x400?text=Главная+страница)
+Базовый URL: `http://localhost:8000`
 
-**📄 Страница статьи**  
-![Статья](https://via.placeholder.com/800x400?text=Статья)
+### Разделы и статьи
 
----
+| Метод | Путь | Описание |
+|-------|------|----------|
+| `GET` | `/sections/` | Список разделов (`?parent=<id>` — дочерние) |
+| `POST` | `/sections/` | Создать раздел (нужен JWT, роль редактор+) |
+| `GET` | `/sections/{id}/` | Раздел с `description`, метаданными |
+| `GET` | `/tree_sections/` | Дерево всех разделов |
+| `GET` | `/articles/` | Статьи (`?section=<id>`) |
+| `POST` | `/articles/` | Создать статью |
+| `GET` | `/articles/{id}/` | Статья |
+| `PUT` | `/articles/{id}/` | Обновить (создаётся версия в истории) |
+| `DELETE` | `/articles/{id}/` | Удалить |
 
-## 🛠 Разработка
+### Поиск
 
-### 🔥 Структура проекта
-```
-📦 knowledge-base-system/
-├── 📂 backend/         # Серверная часть (Django)
-│   ├── 📂 knowledge/   # Основное приложение (модели, API)
-│   ├── 📂 static/      # Статические файлы
-│   ├── 📂 media/       # Загружаемые файлы
-│   ├── Dockerfile      # Docker-контейнер для backend
-│   └── manage.py       # Управление Django
-│
-├── 📂 frontend/        # Клиентская часть (React, Vite)
-│   ├── 📂 src/         # Исходный код
-│   ├──── 📂 components/  # UI-компоненты
-│   ├──── 📂 services/    # API-запросы
-│   ├── vite.config.js  # Конфигурация Vite
-│   ├── package.json    # Зависимости Node.js
-│   └── Dockerfile      # Docker-контейнер для frontend
-│
-├── docker-compose.yml  # Файл для сборки и запуска Docker-контейнеров
-└── README.md           # Основная документация проекта
+```http
+GET /articles/search/?q=docker&section=1&author=admin&date_from=2025-01-01&date_to=2025-12-31
 ```
 
+Минимум 2 символа в `q`. Ответ: `{ "results": [...], "query": "...", "count": N }`.
+
+### Версии статьи
+
+| Метод | Путь | Описание |
+|-------|------|----------|
+| `GET` | `/articles/{id}/versions/` | Список версий |
+| `POST` | `/articles/{id}/restore/` | Откат: `{"version_id": 3}` |
+
+### Прочее
+
+| Метод | Путь | Описание |
+|-------|------|----------|
+| `POST` | `/api/token/` | Получить JWT |
+| `POST` | `/api/token/refresh/` | Обновить access |
+| `GET` | `/api/auth/me/` | Текущий пользователь |
+| `GET` | `/api/auth/providers/` | Доступные OAuth-провайдеры |
+| `POST` | `/uploads/` | Загрузка изображений для редактора (JWT) |
+
+**Пример создания статьи:**
+
+```bash
+curl -X POST http://localhost:8000/articles/ \
+  -H "Authorization: Bearer <access_token>" \
+  -H "Content-Type: application/json" \
+  -d '{"title": "Новая статья", "content": "<p>Текст</p>", "section": 1}'
+```
+
 ---
 
-## 💡 Как внести вклад?
-1. **Форкни репозиторий** и создай новую ветку:
-   ```bash
-   git checkout -b feature/my-feature
-   ```
-2. **Внеси изменения** и **закоммить их**:
-   ```bash
-   git commit -m "Добавил новую функцию"
-   ```
-3. **Отправь изменения** в свою ветку:
-   ```bash
-   git push origin feature/my-feature
-   ```
-4. **Создай Pull Request** в оригинальный репозиторий.
+## Переменные окружения
+
+Шаблон: [backend/.env.example](backend/.env.example), [frontend/.env.example](frontend/.env.example)
+
+| Переменная | Назначение |
+|------------|------------|
+| `SECRET_KEY` | Секрет Django |
+| `DEBUG` | `True` / `False` |
+| `ALLOWED_HOSTS` | Список хостов через запятую |
+| `DB_*` | Подключение к PostgreSQL |
+| `CORS_ALLOWED_ORIGINS` | Origins для фронтенда |
+| `VITE_API_URL` | Базовый URL API при сборке фронта (`/` для Docker) |
+| `VITE_TINYMCE_API_KEY` | Ключ редактора TinyMCE |
+| `GOOGLE_OAUTH_*` | OAuth (опционально) |
+| `FRONTEND_URL` | URL фронта для редиректа после OAuth |
 
 ---
 
-## 📝 Лицензия
-Этот проект распространяется под лицензией **Open Source**.
+## Структура проекта
+
+```
+KNOWLEDGE-BASE-SYSTEM/
+├── backend/
+│   ├── knowledge/           # Модели, API, permissions, search, versioning
+│   ├── backend/             # settings, urls
+│   ├── manage.py
+│   └── Dockerfile
+├── frontend/
+│   ├── src/
+│   │   ├── components/      # UI, поиск, история версий
+│   │   ├── contexts/        # Auth, Folders, ViewType
+│   │   ├── pages/
+│   │   └── services/        # api, articles, auth
+│   └── Dockerfile
+├── docs/
+│   ├── DEPLOY.md            # Production-деплой
+│   ├── OAUTH.md             # Настройка Google OAuth
+│   └── ROADMAP.md           # Roadmap и статус волн P1–P3
+├── .github/workflows/ci.yml
+├── docker-compose.yml
+└── README.md
+```
 
 ---
+
+## Документация
+
+- [docs/DEPLOY.md](docs/DEPLOY.md) — деплой в production
+- [docs/OAUTH.md](docs/OAUTH.md) — OAuth / SSO
+- [docs/ROADMAP.md](docs/ROADMAP.md) — план развития и GitHub Issues
+
+---
+
+## Как внести вклад
+
+1. Создайте ветку: `git checkout -b feature/my-feature`
+2. Внесите изменения и убедитесь, что проходят тесты.
+3. Откройте Pull Request в [репозиторий](https://github.com/Garfild13-06/KNOWLEDGE-BASE-SYSTEM).
+
+---
+
+## Лицензия
+
+Open Source.
