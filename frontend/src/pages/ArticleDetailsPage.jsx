@@ -13,7 +13,11 @@ import {
     DialogTitle,
 } from "@mui/material";
 import RichTextEditor from "../components/RichTextEditor";
+import RequireAuth from "../components/RequireAuth";
 import Divider from '@mui/material/Divider';
+import DOMPurify from 'dompurify';
+import { formatDateTime } from '../utils/formatDate';
+import ArticleVersionHistory from '../components/ArticleVersionHistory';
 
 const ArticleDetailsPage = () => {
     const { id } = useParams();
@@ -126,17 +130,41 @@ const ArticleDetailsPage = () => {
                     <Typography variant="h4" gutterBottom>
                         {article.title}
                     </Typography>
-                    <Box display="flex" justifyContent="left" mt={2}>
-                        <Button variant="contained" color="primary" onClick={handleEdit}>
-                            Изменить
-                        </Button>
-                        <Button variant="outlined" color="error" onClick={() => setOpenDeleteDialog(true)}>
-                            Удалить
-                        </Button>
-                    </Box>
+                    <Typography variant="body2" color="text.secondary" gutterBottom>
+                        {article.created_by_username && `Автор: ${article.created_by_username} · `}
+                        Создано: {formatDateTime(article.created_at)}
+                        {article.updated_at && article.updated_at !== article.created_at && (
+                            <>
+                                {' · '}
+                                Обновлено: {formatDateTime(article.updated_at)}
+                                {article.updated_by_username ? ` (${article.updated_by_username})` : ''}
+                            </>
+                        )}
+                    </Typography>
+                    <RequireAuth>
+                        <Box display="flex" justifyContent="left" mt={2}>
+                            <Button variant="contained" color="primary" onClick={handleEdit}>
+                                Изменить
+                            </Button>
+                            <Button variant="outlined" color="error" onClick={() => setOpenDeleteDialog(true)} sx={{ ml: 1 }}>
+                                Удалить
+                            </Button>
+                            <ArticleVersionHistory
+                                articleId={id}
+                                onRestored={(data) => {
+                                    setArticle(data);
+                                    setEditedContent(data.content);
+                                }}
+                            />
+                        </Box>
+                    </RequireAuth>
 
                     <Divider></Divider>
-                    <div dangerouslySetInnerHTML={{ __html: article.content }} /> {/* Отображаем HTML-контент */}
+                    <div
+                        dangerouslySetInnerHTML={{
+                            __html: DOMPurify.sanitize(article.content || ''),
+                        }}
+                    />
                 </div>
             )}
 

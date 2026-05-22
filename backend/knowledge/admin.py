@@ -8,14 +8,16 @@ admin.site.index_title = "Welcome to Admin Panel"  # Заголовок на г�
 
 @admin.register(Section)
 class SectionAdmin(admin.ModelAdmin):
-    list_display = ('name', 'description')  # Какие поля показывать в списке
-    search_fields = ('name',)              # Поля для поиска
+    list_display = ('name', 'description', 'created_by', 'updated_at')
+    search_fields = ('name',)
+    readonly_fields = ('created_at', 'updated_at')
 
 @admin.register(Article)
 class ArticleAdmin(admin.ModelAdmin):
-    list_display = ('title', 'section', 'file')  # Отображаемые поля
-    list_filter = ('section',)                 # Фильтр по разделу
-    search_fields = ('title',)                 # Поля для поиска
+    list_display = ('title', 'section', 'created_by', 'updated_at')
+    list_filter = ('section',)
+    search_fields = ('title', 'content')
+    readonly_fields = ('created_at', 'updated_at')
 
     actions = ['delete_selected_articles']
 

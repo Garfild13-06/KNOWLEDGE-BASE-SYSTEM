@@ -1,20 +1,19 @@
 FROM node:20-alpine AS builder
 WORKDIR /app
 
-# ✅ Устанавливаем зависимости
+ARG VITE_API_URL=
+ARG VITE_TINYMCE_API_KEY=
+ENV VITE_API_URL=$VITE_API_URL
+ENV VITE_TINYMCE_API_KEY=$VITE_TINYMCE_API_KEY
+
 COPY package.json package-lock.json ./
 RUN npm install
 
-# ✅ Копируем код и билдим
 COPY . .
 RUN npm run build
 
-# ========== Сборка образа для Nginx ==========
 FROM nginx:latest AS serve
-
-# ✅ Копируем наш `nginx.conf` в конфигурацию Nginx
-COPY --from=builder /app/nginx.conf /etc/nginx/conf.d/default.conf  
-# ✅ Копируем собранный фронт в Nginx
+COPY --from=builder /app/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=builder /app/dist /usr/share/nginx/html
 
 EXPOSE 80

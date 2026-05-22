@@ -4,13 +4,15 @@ import { Home, Menu, Close } from '@mui/icons-material';
 import { useNavigate, useParams } from 'react-router-dom';
 import FolderTree from './FolderTree';
 import { fetchFolders } from '../services/api';
+import { useFoldersRefresh } from '../contexts/FoldersContext';
 
 const Sidebar = () => {
   const navigate = useNavigate();
   const [folders, setFolders] = useState([]);
   const { id } = useParams();
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [searchTerm, setSearchTerm] = useState(''); // Состояние для поиска
+  const [searchTerm, setSearchTerm] = useState('');
+  const { foldersVersion } = useFoldersRefresh();
 
   useEffect(() => {
     const loadFolders = async () => {
@@ -23,7 +25,7 @@ const Sidebar = () => {
       }
     };
     loadFolders();
-  }, []);
+  }, [foldersVersion]);
 
   const toggleSidebar = () => {
     setIsCollapsed(!isCollapsed);

@@ -17,6 +17,8 @@ import { useViewType } from '../contexts/ViewTypeContext';
 import ShelfCard from '../components/ShelfCard';
 import ShelfList from '../components/ShelfList';
 import { useNavigate } from 'react-router-dom';
+import RequireAuth from '../components/RequireAuth';
+import { useFoldersRefresh } from '../contexts/FoldersContext';
 
 const SectionPage = () => {
     const [sections, setSections] = useState([]);
@@ -24,6 +26,7 @@ const SectionPage = () => {
     const [newSection, setNewSection] = useState({ name: '', description: '' });
     const { viewType, setViewType } = useViewType();
     const navigate = useNavigate();
+    const { refreshFolders } = useFoldersRefresh();
 
     useEffect(() => {
         const loadSections = async () => {
@@ -50,6 +53,7 @@ const SectionPage = () => {
             const payload = { ...newSection, parent: null };
             const response = await api.post('/sections/', payload);
             setSections((prev) => [...prev, response.data]);
+            refreshFolders();
             handleClose();
         } catch (error) {
             console.error('Ошибка при создании папки:', error.response?.data || error.message);
@@ -67,9 +71,11 @@ const SectionPage = () => {
             </Typography>
 
             <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                <Button variant="contained" color="primary" onClick={handleOpen}>
-                    Новая папка
-                </Button>
+                <RequireAuth>
+                    <Button variant="contained" color="primary" onClick={handleOpen}>
+                        Новая папка
+                    </Button>
+                </RequireAuth>
 
                 <ButtonGroup>
                     <Button
