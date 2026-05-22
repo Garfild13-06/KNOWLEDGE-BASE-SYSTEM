@@ -1,9 +1,9 @@
 from rest_framework import serializers
 from .models import Section, Article
+from .utils import make_snippet, strip_html
 
 
 def _attach_prefetched_children(sections):
-    """Группирует разделы по parent_id для сериализации без N+1."""
     by_parent = {}
     for section in sections:
         parent_id = section.parent_id
@@ -15,10 +15,15 @@ def _attach_prefetched_children(sections):
 
 class SectionSerializer(serializers.ModelSerializer):
     children = serializers.SerializerMethodField()
+    created_by_username = serializers.CharField(source='created_by.username', read_only=True)
 
     class Meta:
         model = Section
-        fields = ['id', 'name', 'description', 'parent', 'children']
+        fields = [
+            'id', 'name', 'description', 'parent', 'children',
+            'created_at', 'updated_at', 'created_by', 'created_by_username',
+        ]
+        read_only_fields = ['created_at', 'updated_at', 'created_by', 'created_by_username']
 
     def get_children(self, obj):
         children = getattr(obj, 'prefetched_children', None)
@@ -28,11 +33,38 @@ class SectionSerializer(serializers.ModelSerializer):
 
 
 class ArticleSerializer(serializers.ModelSerializer):
+    created_by_username = serializers.CharField(source='created_by.username', read_only=True)
+    updated_by_username = serializers.CharField(source='updated_by.username', read_only=True)
+    section_name = serializers.CharField(source='section.name', read_only=True)
+
     class Meta:
         model = Article
-        fields = '__all__'
+        fields = [
+            'id', 'title', 'content', 'section', 'file',
+            'created_at', 'updated_at', 'created_by', 'updated_by',
+            'created_by_username', 'updated_by_username', 'section_name',
+        ]
+        read_only_fields = [
+            'created_at', 'updated_at', 'created_by', 'updated_by',
+            'created_by_username', 'updated_by_username', 'section_name',
+        ]
+
+
+class ArticleSearchResultSerializer(serializers.ModelSerializer):
+    section_id = serializers.IntegerField(source='section.id', read_only=True)
+    section_name = serializers.CharField(source='section.name', read_only=True)
+    snippet = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Article
+        fields = ['id', 'title', 'section_id', 'section_name', 'snippet', 'updated_at']
+
+    def get_snippet(self, obj):
+        query = self.context.get('query', '')
+        if query:
+            return make_snippet(obj.content or obj.title, query)
+        return strip_html(obj.content or '')[:160]
 
 
 class TreeSectionSerializer(SectionSerializer):
-    """Сериализатор дерева разделов (alias SectionSerializer)."""
     pass

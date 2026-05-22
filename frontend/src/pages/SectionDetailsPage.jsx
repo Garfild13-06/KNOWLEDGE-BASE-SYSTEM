@@ -22,12 +22,15 @@ import ShelfList from '../components/ShelfList';
 import BookCard from '../components/BookCard';
 import BookSpineList from '../components/BookSpineList';
 import RequireAuth from '../components/RequireAuth';
+import RichTextEditor from '../components/RichTextEditor';
+import { useFoldersRefresh } from '../contexts/FoldersContext';
 
-const SectionDetailsPage = ({ onFolderUpdate }) => { // Добавлен пропс для обновления
+const SectionDetailsPage = () => {
   const { id } = useParams();
   const parentId = parseInt(id, 10);
   const navigate = useNavigate();
   const { viewType, setViewType } = useViewType();
+  const { refreshFolders } = useFoldersRefresh();
   const [section, setSection] = useState(null);
   const [subsections, setSubsections] = useState([]);
   const [articles, setArticles] = useState([]);
@@ -72,11 +75,16 @@ const SectionDetailsPage = ({ onFolderUpdate }) => { // Добавлен про�
     return <Typography>Загрузка...</Typography>;
   }
 
+  const resetNewBook = () => {
+    setNewBook({ title: '', content: '', section: id });
+  };
+
   const handleCreateBook = async () => {
     try {
-      const response = await api.post('/articles/', newBook);
+      const response = await api.post('/articles/', { ...newBook, section: Number(id) });
       setArticles((prev) => [...prev, response.data]);
       setOpenNewBook(false);
+      resetNewBook();
     } catch (error) {
       console.error('Ошибка при добавлении файла:', error.response?.data || error.message);
     }
@@ -87,16 +95,12 @@ const SectionDetailsPage = ({ onFolderUpdate }) => { // Добавлен про�
       const response = await api.post('/sections/', newShelf);
       setSubsections((prev) => [...prev, response.data]);
       setOpenNewShelf(false);
-      // Уведомляем родительский компонент об обновлении папок
-      if (onFolderUpdate) {
-        onFolderUpdate();
-      }
+      refreshFolders();
     } catch (error) {
       console.error('Ошибка при добавлении папки:', error.response?.data || error.message);
     }
   };
 
-  // Остальной код остаётся без изменений
   return (
     <div>
       <Breadcrumbs aria-label="breadcrumb" style={{ marginBottom: '20px' }}>
@@ -195,31 +199,40 @@ const SectionDetailsPage = ({ onFolderUpdate }) => { // Добавлен про�
         />
       )}
 
-      <Dialog open={openNewBook} onClose={() => setOpenNewBook(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Добавить новый файл</DialogTitle>
+      <Dialog
+        open={openNewBook}
+        onClose={() => {
+          setOpenNewBook(false);
+          resetNewBook();
+        }}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle>Добавить новую статью</DialogTitle>
         <DialogContent>
           <TextField
-            label="Название файла"
+            label="Название"
             value={newBook.title}
             onChange={(e) => setNewBook({ ...newBook, title: e.target.value })}
             fullWidth
             margin="normal"
           />
-          <TextField
-            label="Содержание файла"
+          <RichTextEditor
             value={newBook.content}
-            onChange={(e) => setNewBook({ ...newBook, content: e.target.value })}
-            multiline
-            rows={4}
-            fullWidth
-            margin="normal"
+            onChange={(content) => setNewBook({ ...newBook, content })}
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenNewBook(false)} color="secondary">
+          <Button
+            onClick={() => {
+              setOpenNewBook(false);
+              resetNewBook();
+            }}
+            color="secondary"
+          >
             Отмена
           </Button>
-          <Button onClick={handleCreateBook} variant="contained" color="primary">
+          <Button onClick={handleCreateBook} variant="contained" color="primary" disabled={!newBook.title.trim()}>
             Сохранить
           </Button>
         </DialogActions>

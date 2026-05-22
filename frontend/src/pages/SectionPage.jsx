@@ -18,6 +18,7 @@ import ShelfCard from '../components/ShelfCard';
 import ShelfList from '../components/ShelfList';
 import { useNavigate } from 'react-router-dom';
 import RequireAuth from '../components/RequireAuth';
+import { useFoldersRefresh } from '../contexts/FoldersContext';
 
 const SectionPage = () => {
     const [sections, setSections] = useState([]);
@@ -25,6 +26,7 @@ const SectionPage = () => {
     const [newSection, setNewSection] = useState({ name: '', description: '' });
     const { viewType, setViewType } = useViewType();
     const navigate = useNavigate();
+    const { refreshFolders } = useFoldersRefresh();
 
     useEffect(() => {
         const loadSections = async () => {
@@ -51,6 +53,7 @@ const SectionPage = () => {
             const payload = { ...newSection, parent: null };
             const response = await api.post('/sections/', payload);
             setSections((prev) => [...prev, response.data]);
+            refreshFolders();
             handleClose();
         } catch (error) {
             console.error('Ошибка при создании папки:', error.response?.data || error.message);

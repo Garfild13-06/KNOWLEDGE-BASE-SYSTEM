@@ -16,6 +16,7 @@ import RichTextEditor from "../components/RichTextEditor";
 import RequireAuth from "../components/RequireAuth";
 import Divider from '@mui/material/Divider';
 import DOMPurify from 'dompurify';
+import { formatDateTime } from '../utils/formatDate';
 
 const ArticleDetailsPage = () => {
     const { id } = useParams();
@@ -127,6 +128,17 @@ const ArticleDetailsPage = () => {
                     {/* Обычный режим */}
                     <Typography variant="h4" gutterBottom>
                         {article.title}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" gutterBottom>
+                        {article.created_by_username && `Автор: ${article.created_by_username} · `}
+                        Создано: {formatDateTime(article.created_at)}
+                        {article.updated_at && article.updated_at !== article.created_at && (
+                            <>
+                                {' · '}
+                                Обновлено: {formatDateTime(article.updated_at)}
+                                {article.updated_by_username ? ` (${article.updated_by_username})` : ''}
+                            </>
+                        )}
                     </Typography>
                     <RequireAuth>
                         <Box display="flex" justifyContent="left" mt={2}>
