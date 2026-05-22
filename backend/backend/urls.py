@@ -4,7 +4,12 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from knowledge.views import SectionViewSet, ArticleViewSet, TinyMCEUploadView, TreeSectionsView
-from knowledge.auth_views import MeView, JoinOrganizationView, AuthProvidersView
+from knowledge.auth_views import (
+    MeView,
+    JoinOrganizationView,
+    AuthProvidersView,
+    GoogleOAuthCallbackView,
+)
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 router = DefaultRouter()
@@ -20,6 +25,7 @@ urlpatterns = [
     path('api/auth/me/', MeView.as_view(), name='auth_me'),
     path('api/auth/join-organization/', JoinOrganizationView.as_view(), name='auth_join_org'),
     path('api/auth/providers/', AuthProvidersView.as_view(), name='auth_providers'),
+    path('api/auth/google/callback/', GoogleOAuthCallbackView.as_view(), name='google_oauth_callback'),
     path('tree_sections/', TreeSectionsView.as_view(), name='tree_sections'),
 
 ]

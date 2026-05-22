@@ -64,6 +64,17 @@ export const AuthProvider = ({ children }) => {
 
     const canEdit = profile?.can_edit ?? false;
 
+    const applyOAuthTokens = useCallback(
+        async (access, refresh) => {
+            applyToken(access);
+            if (refresh) {
+                localStorage.setItem('refresh_token', refresh);
+            }
+            await loadProfile();
+        },
+        [applyToken, loadProfile],
+    );
+
     return (
         <AuthContext.Provider
             value={{
@@ -73,6 +84,7 @@ export const AuthProvider = ({ children }) => {
                 profile,
                 canEdit,
                 loadProfile,
+                applyOAuthTokens,
             }}
         >
             {children}

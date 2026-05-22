@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, TextField, Typography, Box, Paper, Alert } from '@mui/material';
+import { Button, TextField, Typography, Box, Paper, Alert, Divider } from '@mui/material';
+import GoogleIcon from '@mui/icons-material/Google';
 import { useAuth } from '../contexts/AuthContext';
+import { fetchAuthProviders } from '../services/auth';
 
 const LoginPage = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [googleAuthUrl, setGoogleAuthUrl] = useState(null);
     const navigate = useNavigate();
     const { isAuthenticated, login } = useAuth();
 
@@ -16,17 +19,29 @@ const LoginPage = () => {
         }
     }, [isAuthenticated, navigate]);
 
+    useEffect(() => {
+        fetchAuthProviders()
+            .then((providers) => {
+                const google = providers.find((p) => p.id === 'google');
+                if (google?.auth_url) {
+                    setGoogleAuthUrl(google.auth_url);
+                }
+            })
+            .catch(() => {});
+    }, []);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setError('');
         try {
             await login(username, password);
-        } catch (error) {
+        } catch {
             setError('Неверное имя пользователя или пароль');
         }
     };
 
     if (isAuthenticated) {
-        return null; // Ничего не рендерим, так как идет перенаправление
+        return null;
     }
 
     return (
@@ -51,11 +66,24 @@ const LoginPage = () => {
                         fullWidth
                         margin="normal"
                     />
-                    {error && <Alert severity="error">{error}</Alert>}
+                    {error && <Alert severity="error" sx={{ mt: 1 }}>{error}</Alert>}
                     <Button type="submit" variant="contained" color="primary" fullWidth sx={{ mt: 2 }}>
                         Войти
                     </Button>
                 </form>
+                {googleAuthUrl && (
+                    <>
+                        <Divider sx={{ my: 2 }}>или</Divider>
+                        <Button
+                            variant="outlined"
+                            fullWidth
+                            startIcon={<GoogleIcon />}
+                            href={googleAuthUrl}
+                        >
+                            Войти через Google
+                        </Button>
+                    </>
+                )}
             </Paper>
         </Box>
     );

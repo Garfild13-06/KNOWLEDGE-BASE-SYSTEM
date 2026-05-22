@@ -18,7 +18,24 @@ GOOGLE_OAUTH_REDIRECT_URI=http://localhost:8000/api/auth/google/callback/
 
 После настройки `GET /api/auth/providers/` вернёт URL для редиректа на Google.
 
-> Полный callback-обмен кодом на JWT можно подключить через `django-allauth` или `mozilla-django-oidc` в следующей итерации.
+## Callback (реализовано)
+
+`GET /api/auth/google/callback/` — обмен `code` на JWT и редирект:
+
+```
+{FRONTEND_URL}/oauth/callback?access=...&refresh=...
+```
+
+Фронтенд сохраняет токены и перенаправляет на главную.
+
+### Переменные
+
+```env
+GOOGLE_OAUTH_CLIENT_ID=...
+GOOGLE_OAUTH_CLIENT_SECRET=...
+GOOGLE_OAUTH_REDIRECT_URI=http://localhost:8000/api/auth/google/callback/
+FRONTEND_URL=http://localhost:5173
+```
 
 ## Роли
 

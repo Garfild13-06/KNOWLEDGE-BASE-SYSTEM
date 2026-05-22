@@ -5,6 +5,7 @@ import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import Footer from './components/Footer';
 import LoginPage from "./pages/LoginPage.jsx";
+import OAuthCallbackPage from './pages/OAuthCallbackPage';
 import ArticlePage from './pages/ArticlePage';
 import SectionPage from './pages/SectionPage';
 import SectionDetailsPage from './pages/SectionDetailsPage';
@@ -38,6 +39,7 @@ const App = () => {
                     <Box component="main" sx={{ flexGrow: 1, p: 3, pb: 8 }}> {/* Отступ снизу */}
                         <Routes>
                             <Route path="/login" element={<LoginPage />} />
+                            <Route path="/oauth/callback" element={<OAuthCallbackPage />} />
                             <Route path="/" element={<SectionPage />} />
                             <Route path="/articles" element={<ArticlePage />} />
                             <Route path="/sections/:id" element={<SectionDetailsPage />} />
