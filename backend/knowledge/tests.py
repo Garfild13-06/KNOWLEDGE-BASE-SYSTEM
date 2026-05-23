@@ -234,6 +234,9 @@ class LanTestUsersCommandTestCase(KnowledgeTestMixin, APITestCase):
         self.assertEqual(admin.profile.role, ROLE_ADMIN)
         self.assertEqual(editor.profile.role, ROLE_EDITOR)
         self.assertEqual(reader.profile.role, ROLE_READER)
+
+
+class UtilsTestCase(APITestCase):
     def test_strip_html(self):
         self.assertEqual(strip_html('<p>Hi <b>there</b></p>'), 'Hi there')
 
