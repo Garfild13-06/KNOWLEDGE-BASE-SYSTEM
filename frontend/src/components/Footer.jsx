@@ -1,4 +1,3 @@
-import React from 'react';
 import { Box, Typography } from '@mui/material';
 
 const Footer = () => {
@@ -6,13 +5,12 @@ const Footer = () => {
         <Box
             component="footer"
             sx={{
-                position: 'fixed',
-                bottom: 0,
-                width: '100%',
-                backgroundColor: 'primary.main',
-                color: 'white',
+                mt: 'auto',
+                py: 1.5,
+                px: 2,
+                bgcolor: 'primary.main',
+                color: 'primary.contrastText',
                 textAlign: 'center',
-                // padding: '1rem',
                 boxShadow: '0 -2px 4px rgba(0, 0, 0, 0.1)',
             }}
         >
