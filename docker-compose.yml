@@ -27,8 +27,15 @@ services:
 
   backend:
     build: ./backend
-    env_file: 
-      - ./backend/.env  # Специфичные для бэкенда переменные
+    env_file:
+      - ./backend/.env
+    environment:
+      KB_ENABLE_AI: ${KB_ENABLE_AI:-false}
+      KB_ENABLE_SEMANTIC_SEARCH: ${KB_ENABLE_SEMANTIC_SEARCH:-false}
+      KB_ENABLE_GAMIFICATION: ${KB_ENABLE_GAMIFICATION:-false}
+      KB_ENABLE_GRAPH_VIEW: ${KB_ENABLE_GRAPH_VIEW:-true}
+      KB_ENABLE_PUBLIC_PORTAL: ${KB_ENABLE_PUBLIC_PORTAL:-true}
+      KB_SANDBOX_TTL_HOURS: ${KB_SANDBOX_TTL_HOURS:-72}
     ports:
       - "8000:8000"
     command: >

@@ -13,6 +13,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .constants import ROLE_EDITOR
 from .models import Organization, UserProfile
 from .permissions import get_user_role, user_can_edit, user_is_admin
+from .features import get_feature_flags_payload
 from .serializers import JoinOrganizationSerializer, OrganizationSerializer
 from .tenancy import get_default_organization, get_request_organization
 
@@ -30,7 +31,7 @@ def build_me_payload(user, request=None):
         role = None
 
     role_display_map = dict(UserProfile._meta.get_field('role').choices)
-    return {
+    payload = {
         'id': user.id,
         'username': user.username,
         'role': role,
@@ -39,6 +40,9 @@ def build_me_payload(user, request=None):
         'is_admin': user_is_admin(user),
         'organization': OrganizationSerializer(organization).data if organization else None,
     }
+    if organization:
+        payload['features'] = get_feature_flags_payload(organization)
+    return payload
 
 
 def _unique_username(base):
@@ -68,6 +72,7 @@ class MeView(APIView):
     def get(self, request):
         if not request.user.is_authenticated:
             org = get_request_organization(request)
+            features = get_feature_flags_payload(org) if org else {}
             return Response({
                 'id': None,
                 'username': None,
@@ -75,7 +80,8 @@ class MeView(APIView):
                 'role_display': 'Гость',
                 'can_edit': False,
                 'is_admin': False,
-                'organization': OrganizationSerializer(org).data,
+                'organization': OrganizationSerializer(org).data if org else None,
+                'features': features,
             })
         return Response(build_me_payload(request.user, request))
 

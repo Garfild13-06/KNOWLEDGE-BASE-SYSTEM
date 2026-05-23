@@ -1,11 +1,15 @@
 import React from 'react';
-import { AppBar, Toolbar, Typography, Button, Chip, Box } from '@mui/material';
+import { AppBar, Toolbar, Typography, Button, Chip, Box, IconButton } from '@mui/material';
+import DarkModeIcon from '@mui/icons-material/DarkMode';
+import LightModeIcon from '@mui/icons-material/LightMode';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useThemeMode } from '../contexts/ThemeContext';
 import ArticleSearch from './ArticleSearch';
 
 const Header = () => {
     const { isAuthenticated, logout, profile } = useAuth();
+    const { mode, toggleMode } = useThemeMode();
 
     return (
         <AppBar position="sticky">
@@ -33,9 +37,15 @@ const Header = () => {
                         sx={{ mr: 2, color: 'inherit', borderColor: 'rgba(255,255,255,0.5)' }}
                     />
                 )}
+                <Button color="inherit" component={Link} to="/graph" sx={{ mr: 1 }}>
+                    Граф
+                </Button>
                 <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center' }}>
                     <ArticleSearch />
                 </Box>
+                <IconButton color="inherit" onClick={toggleMode} aria-label="Переключить тему">
+                    {mode === 'light' ? <DarkModeIcon /> : <LightModeIcon />}
+                </IconButton>
                 {isAuthenticated ? (
                     <Button color="inherit" onClick={logout}>
                         Выход

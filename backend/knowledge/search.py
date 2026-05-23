@@ -26,6 +26,12 @@ def build_article_search_queryset(request, query, filters=None):
     if organization:
         queryset = queryset.filter(organization=organization)
 
+    if filters.get('published_only'):
+        queryset = queryset.filter(
+            is_published=True,
+            status=Article.STATUS_PUBLISHED,
+        )
+
     if len(query) < MIN_SEARCH_LENGTH:
         return queryset.none()
 

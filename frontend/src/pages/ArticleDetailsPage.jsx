@@ -18,8 +18,11 @@ import Divider from '@mui/material/Divider';
 import DOMPurify from 'dompurify';
 import { formatDateTime } from '../utils/formatDate';
 import ArticleVersionHistory from '../components/ArticleVersionHistory';
+import ArticleExtras from '../components/ArticleExtras';
+import { useAuth } from '../contexts/AuthContext';
 
 const ArticleDetailsPage = () => {
+    const { profile } = useAuth();
     const { id } = useParams();
     const navigate = useNavigate();
     const [article, setArticle] = useState(null);
@@ -164,6 +167,11 @@ const ArticleDetailsPage = () => {
                         dangerouslySetInnerHTML={{
                             __html: DOMPurify.sanitize(article.content || ''),
                         }}
+                    />
+                    <ArticleExtras
+                        articleId={id}
+                        article={article}
+                        features={profile?.features}
                     />
                 </div>
             )}

@@ -2,6 +2,7 @@ backend/media/uploads/*
 backend/backend/__pycache__
 frontend/package-lock.json
 backend/.env
+backend/.env.lan
 backend/**/__pycache__/
 backend/**/*.pyc
 backend/test_db.sqlite3

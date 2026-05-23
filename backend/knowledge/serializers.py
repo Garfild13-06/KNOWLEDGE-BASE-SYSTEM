@@ -1,6 +1,15 @@
 from rest_framework import serializers
 
-from .models import Article, ArticleVersion, Organization, Section, UserProfile
+from .models import (
+    Article,
+    ArticleComment,
+    ArticleVersion,
+    AuditLog,
+    Organization,
+    Section,
+    UserProfile,
+    WebhookSubscription,
+)
 from .utils import make_snippet, strip_html
 
 
@@ -28,6 +37,7 @@ class SectionSerializer(serializers.ModelSerializer):
         model = Section
         fields = [
             'id', 'name', 'description', 'parent', 'children', 'organization',
+            'is_public', 'expires_at',
             'created_at', 'updated_at', 'created_by', 'created_by_username',
         ]
         read_only_fields = [
@@ -45,18 +55,34 @@ class ArticleSerializer(serializers.ModelSerializer):
     created_by_username = serializers.CharField(source='created_by.username', read_only=True)
     updated_by_username = serializers.CharField(source='updated_by.username', read_only=True)
     section_name = serializers.CharField(source='section.name', read_only=True)
+    is_bookmarked = serializers.SerializerMethodField()
+    wiki_links = serializers.SerializerMethodField()
 
     class Meta:
         model = Article
         fields = [
-            'id', 'title', 'content', 'section', 'file', 'organization',
+            'id', 'title', 'slug', 'content', 'section', 'file', 'organization',
+            'is_published', 'status', 'template_key', 'view_count',
             'created_at', 'updated_at', 'created_by', 'updated_by',
             'created_by_username', 'updated_by_username', 'section_name',
+            'is_bookmarked', 'wiki_links',
         ]
         read_only_fields = [
             'created_at', 'updated_at', 'created_by', 'updated_by',
-            'created_by_username', 'updated_by_username', 'section_name', 'organization',
+            'created_by_username', 'updated_by_username', 'section_name',
+            'organization', 'view_count', 'slug',
         ]
+
+    def get_is_bookmarked(self, obj):
+        request = self.context.get('request')
+        if not request or not request.user.is_authenticated:
+            return False
+        return obj.user_states.filter(user=request.user, is_bookmarked=True).exists()
+
+    def get_wiki_links(self, obj):
+        from .wiki_links import extract_wiki_titles
+
+        return extract_wiki_titles(obj.content)
 
 
 class ArticleVersionSerializer(serializers.ModelSerializer):
@@ -85,7 +111,7 @@ class ArticleSearchResultSerializer(serializers.ModelSerializer):
     class Meta:
         model = Article
         fields = [
-            'id', 'title', 'section_id', 'section_name', 'snippet',
+            'id', 'title', 'slug', 'section_id', 'section_name', 'snippet',
             'updated_at', 'search_rank',
         ]
 
@@ -97,6 +123,34 @@ class ArticleSearchResultSerializer(serializers.ModelSerializer):
         return text[:160]
 
 
+class ArticleCommentSerializer(serializers.ModelSerializer):
+    author_username = serializers.CharField(source='author.username', read_only=True)
+
+    class Meta:
+        model = ArticleComment
+        fields = ['id', 'article', 'author', 'author_username', 'body', 'created_at']
+        read_only_fields = ['author', 'author_username', 'created_at']
+
+
+class WebhookSubscriptionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WebhookSubscription
+        fields = ['id', 'url', 'secret', 'events', 'is_active', 'created_at']
+        read_only_fields = ['created_at']
+        extra_kwargs = {'secret': {'write_only': True}}
+
+
+class AuditLogSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(source='user.username', read_only=True, allow_null=True)
+
+    class Meta:
+        model = AuditLog
+        fields = [
+            'id', 'action', 'entity_type', 'entity_id', 'details',
+            'username', 'ip_address', 'created_at',
+        ]
+
+
 class UserMeSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     username = serializers.CharField()
@@ -105,6 +159,7 @@ class UserMeSerializer(serializers.Serializer):
     can_edit = serializers.BooleanField()
     is_admin = serializers.BooleanField()
     organization = OrganizationSerializer()
+    features = serializers.DictField(required=False)
 
 
 class JoinOrganizationSerializer(serializers.Serializer):
