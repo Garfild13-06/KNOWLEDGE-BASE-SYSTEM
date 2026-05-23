@@ -107,7 +107,12 @@ const ArticleVersionHistory = ({ articleId, onRestored }) => {
                         ))}
                     </List>
                     {preview && (
-                        <Box mt={2} p={2} bgcolor="grey.100" borderRadius={1}>
+                        <Box
+                            mt={2}
+                            p={2}
+                            borderRadius={1}
+                            sx={{ bgcolor: 'action.hover' }}
+                        >
                             <Typography variant="subtitle2" gutterBottom>
                                 Просмотр v{preview.version_number}
                             </Typography>
