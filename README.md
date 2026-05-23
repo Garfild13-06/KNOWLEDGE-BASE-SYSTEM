@@ -407,7 +407,7 @@ curl -X POST http://localhost:8000/api/ai/ \
 | Переменная | Назначение |
 |------------|------------|
 | `VITE_API_URL` | Базовый URL API (`/` в Docker/nginx) |
-| `VITE_TINYMCE_API_KEY` | Ключ TinyMCE Cloud |
+| `VITE_TINYMCE_API_KEY` | Опционально. Редактор по умолчанию self-hosted (пакет `tinymce`), ключ от TinyMCE Cloud не требуется. |
 
 ---
 
