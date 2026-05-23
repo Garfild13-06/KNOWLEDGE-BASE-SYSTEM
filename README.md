@@ -454,6 +454,7 @@ KNOWLEDGE-BASE-SYSTEM/
 | [docs/OAUTH.md](docs/OAUTH.md) | Google OAuth / SSO |
 | [docs/ROADMAP.md](docs/ROADMAP.md) | История волн P1–P3 |
 | [docs/PACKAGES.md](docs/PACKAGES.md) | Пакеты доработок A–F (Issues #23–#56) |
+| [docs/VIABILITY-ANALYSIS.md](docs/VIABILITY-ANALYSIS.md) | Анализ пробелов и план волн V1–V3 до production |
 | [scripts/run-lan-test.sh](scripts/run-lan-test.sh) | Запуск для тестов в LAN |
 | [backend/.env.lan.example](backend/.env.lan.example) | Шаблон env для LAN-режима |
 
