@@ -3,6 +3,7 @@
 - **Issues (волны P1–P3):** https://github.com/Garfild13-06/KNOWLEDGE-BASE-SYSTEM/issues  
 - **Пакеты A–F (следующие):** [docs/PACKAGES.md](./PACKAGES.md)
 - **План вывода в production (V1–V3):** [docs/VIABILITY-ANALYSIS.md](./VIABILITY-ANALYSIS.md)
+- **Идеи дальнейшего развития:** [docs/IMPROVEMENT-IDEAS.md](./IMPROVEMENT-IDEAS.md)
 
 ## Статус волн P1–P3 (в `main`)
 
