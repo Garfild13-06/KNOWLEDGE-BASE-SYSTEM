@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Drawer, List, ListItem, ListItemIcon, ListItemText, Divider, IconButton, TextField } from '@mui/material';
+import { useState, useEffect } from 'react';
+import { Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider, TextField } from '@mui/material';
 import { Home, Menu, Close } from '@mui/icons-material';
 import { useNavigate, useParams } from 'react-router-dom';
 import FolderTree from './FolderTree';
@@ -64,19 +64,23 @@ const Sidebar = () => {
       }}
     >
       <List>
-        <ListItem button onClick={toggleSidebar}>
-          <ListItemIcon>
-            {isCollapsed ? <Menu /> : <Close />}
-          </ListItemIcon>
-          {!isCollapsed && <ListItemText primary="Свернуть" />}
+        <ListItem disablePadding>
+          <ListItemButton onClick={toggleSidebar}>
+            <ListItemIcon>
+              {isCollapsed ? <Menu /> : <Close />}
+            </ListItemIcon>
+            {!isCollapsed && <ListItemText primary="Свернуть" />}
+          </ListItemButton>
         </ListItem>
         {!isCollapsed && (
           <>
-            <ListItem button onClick={() => navigate('/')}>
-              <ListItemIcon>
-                <Home />
-              </ListItemIcon>
-              <ListItemText primary="Главная" />
+            <ListItem disablePadding>
+              <ListItemButton onClick={() => navigate('/')}>
+                <ListItemIcon>
+                  <Home />
+                </ListItemIcon>
+                <ListItemText primary="Главная" />
+              </ListItemButton>
             </ListItem>
             <Divider />
             <TextField

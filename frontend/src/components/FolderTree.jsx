@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { List, ListItem, ListItemIcon, ListItemText, Collapse } from '@mui/material';
+import { List, ListItem, ListItemButton, ListItemIcon, ListItemText, Collapse } from '@mui/material';
 import { Folder, ExpandLess, ExpandMore } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 
@@ -49,26 +49,22 @@ const FolderTree = ({ folders, currentSectionId }) => {
 
     return (
       <React.Fragment key={folder.id}>
-        <ListItem
-          button
-          onClick={() => navigate(`/sections/${folder.id}`)}
-          sx={{
-            paddingLeft: `${level * 20}px`,
-            backgroundColor: isActive ? '#d0d0d0' : 'inherit', // Чуть темнее для контраста
-            '&:hover': {
-              backgroundColor: isActive ? '#d0d0d0' : '#f5f5f5',
-            },
-          }}
-        >
-          <ListItemIcon>
-            <Folder />
-          </ListItemIcon>
-          <ListItemText primary={folder.name} />
-          {hasChildren && (
-            <span onClick={(e) => { e.stopPropagation(); handleToggle(folder.id); }}>
-              {open[folder.id] ? <ExpandLess /> : <ExpandMore />}
-            </span>
-          )}
+        <ListItem disablePadding>
+          <ListItemButton
+            selected={isActive}
+            onClick={() => navigate(`/sections/${folder.id}`)}
+            sx={{ pl: `${level * 20 + 16}px` }}
+          >
+            <ListItemIcon>
+              <Folder />
+            </ListItemIcon>
+            <ListItemText primary={folder.name} />
+            {hasChildren && (
+              <span onClick={(e) => { e.stopPropagation(); handleToggle(folder.id); }}>
+                {open[folder.id] ? <ExpandLess /> : <ExpandMore />}
+              </span>
+            )}
+          </ListItemButton>
         </ListItem>
         {hasChildren && (
           <Collapse in={open[folder.id]} timeout="auto" unmountOnExit>
