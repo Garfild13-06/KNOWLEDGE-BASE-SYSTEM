@@ -74,6 +74,27 @@ docker compose exec backend python manage.py setup_kb_roles
 
 Остановка: `docker compose down`. Данные PostgreSQL сохраняются в volume `postgres_data`.
 
+### Тестирование в локальной сети (LAN)
+
+Скрипт поднимает проект на `0.0.0.0`, отключает ограничения CORS и создаёт тестовых пользователей. Доступ с телефона/другого ПК в той же Wi‑Fi/LAN — по IP компьютера-хоста.
+
+```bash
+chmod +x scripts/run-lan-test.sh
+./scripts/run-lan-test.sh
+```
+
+| Логин | Пароль | Роль |
+|-------|--------|------|
+| `kb_admin` | `admin123` | Администратор |
+| `kb_editor` | `editor123` | Редактор |
+| `kb_reader` | `reader123` | Читатель |
+
+- Остановка: `./scripts/run-lan-test.sh --stop`
+- Режим без Docker (dev): `./scripts/run-lan-test.sh --dev`
+- Конфиг генерируется в `backend/.env.lan` (в `.gitignore`)
+
+**Только для локальной сети.** Не используйте в production и не открывайте порты в интернет.
+
 Подробный production-гайд: [docs/DEPLOY.md](docs/DEPLOY.md)
 
 ---
@@ -433,6 +454,8 @@ KNOWLEDGE-BASE-SYSTEM/
 | [docs/OAUTH.md](docs/OAUTH.md) | Google OAuth / SSO |
 | [docs/ROADMAP.md](docs/ROADMAP.md) | История волн P1–P3 |
 | [docs/PACKAGES.md](docs/PACKAGES.md) | Пакеты доработок A–F (Issues #23–#56) |
+| [scripts/run-lan-test.sh](scripts/run-lan-test.sh) | Запуск для тестов в LAN |
+| [backend/.env.lan.example](backend/.env.lan.example) | Шаблон env для LAN-режима |
 
 ---
 

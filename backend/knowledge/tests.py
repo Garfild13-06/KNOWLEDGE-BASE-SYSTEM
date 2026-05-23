@@ -3,7 +3,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from .constants import ROLE_EDITOR, ROLE_READER
+from .constants import ROLE_ADMIN, ROLE_EDITOR, ROLE_READER
 from .models import Article, ArticleVersion, Organization, Section, UserProfile
 from .tenancy import get_default_organization
 from .utils import make_snippet, strip_html
@@ -220,7 +220,20 @@ class TemplatesAPITestCase(APITestCase):
         self.assertGreater(len(response.data['templates']), 0)
 
 
-class UtilsTestCase(APITestCase):
+class LanTestUsersCommandTestCase(KnowledgeTestMixin, APITestCase):
+    def test_create_lan_test_users(self):
+        from django.core.management import call_command
+
+        call_command('create_lan_test_users', '--reset-passwords')
+        admin = User.objects.get(username='kb_admin')
+        editor = User.objects.get(username='kb_editor')
+        reader = User.objects.get(username='kb_reader')
+        self.assertTrue(admin.check_password('admin123'))
+        self.assertTrue(editor.check_password('editor123'))
+        self.assertTrue(reader.check_password('reader123'))
+        self.assertEqual(admin.profile.role, ROLE_ADMIN)
+        self.assertEqual(editor.profile.role, ROLE_EDITOR)
+        self.assertEqual(reader.profile.role, ROLE_READER)
     def test_strip_html(self):
         self.assertEqual(strip_html('<p>Hi <b>there</b></p>'), 'Hi there')
 

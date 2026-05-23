@@ -1,0 +1,29 @@
+# Переопределения для запуска в локальной сети (см. scripts/run-lan-test.sh)
+# Не использовать в production.
+
+services:
+  db:
+    env_file:
+      - ./backend/.env.lan
+    ports:
+      - "0.0.0.0:${LAN_DB_PORT:-5432}:5432"
+
+  backend:
+    env_file:
+      - ./backend/.env.lan
+    environment:
+      DEBUG: "True"
+      CORS_ALLOW_ALL_ORIGINS: "True"
+      ALLOWED_HOSTS: ${LAN_ALLOWED_HOSTS:-localhost,127.0.0.1,backend}
+    ports:
+      - "0.0.0.0:${LAN_BACKEND_PORT:-8000}:8000"
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py setup_kb_roles &&
+             python manage.py create_lan_test_users --reset-passwords &&
+             python manage.py collectstatic --noinput &&
+             gunicorn --bind 0.0.0.0:8000 --workers 2 backend.wsgi"
+
+  frontend:
+    ports:
+      - "0.0.0.0:${LAN_FRONTEND_PORT:-5173}:80"
